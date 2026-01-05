@@ -2,9 +2,9 @@
 export interface User {
     id: string;
     email: string;
-    name: string;     
-    fullName: string;   
-    phone: string;    
+    name: string;
+    fullName: string;
+    phone: string;
     role: 'admin' | 'user';
     avatar?: string;
 }
@@ -25,8 +25,8 @@ export const MOCK_USERS: (User & { password: string })[] = [
         id: '2',
         email: 'user@tada.com',
         password: '123',
-        name: 'Người dùng mẫu',
-        fullName: 'Nguyễn Thị Mẫu',
+        name: 'Võ Minh Hiếu',
+        fullName: 'Võ Minh Hiếu',
         phone: '0912 345 678',
         role: 'user',
     }
