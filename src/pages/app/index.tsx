@@ -1,137 +1,158 @@
-"use client";
-import Footer from '@/components/app/Footer';
-import Header from '@/components/app/Header';
-import { ArrowDownLeft, CreditCard, Plus, Send, Wallet } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import BottomNav from '@/components/BottomNav';
+import Header from '@/components/Header';
+import { useAuthStore } from '@/store/authStore';
+import { useBusinessStore } from '@/store/businessStore';
+import { usePromotionStore } from '@/store/promotionStore';
+import { useServiceStore } from '@/store/serviceStore';
+import Head from 'next/head';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
-export default function UserLightPage() {
-    const router = useRouter();
-    const [user] = useState<any>((() => {
-        if (typeof window !== 'undefined') {
-            const session = localStorage.getItem('user_session');
-            return session ? JSON.parse(session) : null;
-        }
-        return null;
-    }));
-
-    useEffect(() => {
-        if (!user) router.push('/login');
-    }, [user, router]);
-
-    if (!user) return <div className="min-h-screen bg-slate-50 flex items-center justify-center">Đang tải...</div>;
-
-    return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-            <Header userName={user.name} />
-
-            <main className="max-w-7xl mx-auto px-6 lg:px-10 pt-10 pb-20">
-                <div className="grid grid-cols-12 gap-10">
-
-                    {/* Cột trái: Chiếm 8 cột */}
-                    <div className="col-span-12 lg:col-span-8 space-y-12">
-
-                        {/* Balance Card - Nâng cấp với Mesh Gradient */}
-                        <div className="relative h-64 w-full bg-[#1e40af] rounded-[2.5rem] p-10 overflow-hidden shadow-2xl shadow-blue-500/20">
-                            <div className="relative z-10 flex flex-col h-full justify-between">
-                                <div className="flex justify-between items-start">
-                                    <div className="space-y-1">
-                                        <p className="text-blue-100/70 text-sm font-medium uppercase tracking-[0.2em]">Tổng tài sản</p>
-                                        <h2 className="text-5xl font-extrabold text-white tracking-tight">$24,500.00</h2>
-                                    </div>
-                                    <div className="bg-white/20 backdrop-blur-md p-3 rounded-2xl">
-                                        <CreditCard className="text-white" size={28} />
-                                    </div>
-                                </div>
-                                <div className="flex justify-between items-end">
-                                    <div className="font-mono text-xl text-blue-100/80 tracking-[0.4em]">**** 8824</div>
-                                    <div className="px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-xs font-bold text-white uppercase">Thẻ chính</div>
-                                </div>
-                            </div>
-
-                            {/* Abstract Shapes for Depth */}
-                            <div className="absolute top-[-20%] right-[-10%] w-80 h-80 bg-blue-400 rounded-full blur-[100px] opacity-40"></div>
-                            <div className="absolute bottom-[-30%] left-[-5%] w-64 h-64 bg-indigo-500 rounded-full blur-[80px] opacity-30"></div>
-                        </div>
-
-                        {/* Action Row - Tinh gọn lại */}
-                        <div className="flex justify-around items-center bg-white py-8 px-4 rounded-[2rem] shadow-sm border border-slate-100">
-                            <QuickAction icon={Send} label="Gửi" colorClass="bg-blue-600" />
-                            <QuickAction icon={ArrowDownLeft} label="Nhận" colorClass="bg-emerald-500" />
-                            <QuickAction icon={Wallet} label="Ví" colorClass="bg-violet-500" />
-                            <QuickAction icon={Plus} label="Nạp" colorClass="bg-amber-500" />
-                        </div>
-
-                        {/* Transaction Section */}
-                        <div className="space-y-6">
-                            <div className="flex justify-between items-center px-2">
-                                <h3 className="text-2xl font-black text-slate-800 tracking-tight">Giao dịch gần đây</h3>
-                                <button className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors">Xem tất cả</button>
-                            </div>
-                            <div className="space-y-3">
-                                <TransactionItem title="Thanh toán Grab" date="Hôm nay, 12:45" amount="-15.20" isPositive={false} />
-                                <TransactionItem title="Lương tháng 1" date="Hôm qua, 08:00" amount="2,500.00" isPositive={true} />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Cột phải: Chiếm 4 cột - Widgets */}
-                    <div className="col-span-12 lg:col-span-4 space-y-8">
-                        {/* Widget mục tiêu tiết kiệm đẹp hơn */}
-                        <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
-                            <h4 className="font-black text-slate-800 text-lg mb-6">Mục tiêu tiết kiệm</h4>
-                            <div className="space-y-6">
-                                <div className="p-5 bg-slate-50 rounded-3xl">
-                                    <div className="flex justify-between text-xs font-black uppercase mb-3 text-slate-400">
-                                        <span>Macbook Pro M3</span>
-                                        <span className="text-blue-600">65%</span>
-                                    </div>
-                                    <div className="h-3 w-full bg-slate-200 rounded-full overflow-hidden">
-                                        <div className="bg-blue-600 h-full rounded-full transition-all duration-1000" style={{ width: '65%' }}></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-
-            <Footer />
-        </div>
-    );
+// --- Interfaces ---
+interface Promotion {
+  _id: string;
+  name: string;
+  type: 'percentage' | 'fixed';
+  discountValue: number;
+  description?: string;
+  code: string;
 }
 
-// --- Helper Components ---
 
-// Thành phần Action Button mới tinh tế hơn
-function QuickAction({ icon: Icon, label, colorClass }: any) {
-    return (
-        <div className="flex flex-col items-center gap-3 group cursor-pointer">
-            <div className={`w-14 h-14 ${colorClass} rounded-2xl flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:-translate-y-1 transition-all duration-300`}>
-                <Icon size={24} className="text-white" />
+
+export default function AppPage() {
+  const router = useRouter();
+  const { user, isAuthenticated, isHydrated, logout, fetchUser } = useAuthStore();
+  const { config } = useBusinessStore();
+
+  useEffect(() => {
+    if (isAuthenticated && !user) {
+      fetchUser();
+    }
+  }, [isAuthenticated, user, fetchUser]);
+
+  useEffect(() => {
+    const businessStore = useBusinessStore.getState();
+    businessStore.hydrate();
+    businessStore.fetchConfig();
+
+    const promotionStore = usePromotionStore.getState();
+    promotionStore.hydrate();
+    promotionStore.fetchPromotions();
+
+    const serviceStore = useServiceStore.getState();
+    serviceStore.hydrate();
+    serviceStore.fetchServices();
+  }, []);
+
+  useEffect(() => {
+    if (router.isReady && !isAuthenticated && isHydrated) {
+      router.push('/login');
+    }
+  }, [router.isReady, isAuthenticated, isHydrated, router]);
+
+  const { promotions } = usePromotionStore();
+
+  if (!isAuthenticated || !user) {
+    return null;
+  }
+
+  return (
+    <>
+      <Head>
+        <title>Trang chủ - Booking App</title>
+      </Head>
+
+      <div className="min-h-screen bg-white flex flex-col font-sans text-gray-300">
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <Header user={user} logout={logout} />
+        </div>
+
+        <main className="flex-1 pt-[85px] pb-[100px] px-4 w-full max-w-7xl mx-auto space-y-8">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-lg font-bold text-gray-800 mb-4 px-1">Tiện ích nhanh</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
+              <Link href="/app/booking" className="bg-gradient-to-br from-stone-50 via-orange-100 to-amber-100 p-6 rounded-lg shadow-sm hover:shadow-md transition text-center">
+                <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-purple-100 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-gray-900">Đặt lịch</h3>
+              </Link>
+
+              <Link href="/app/referral" className="bg-gradient-to-br from-green-100 via-emerald-100 to-teal-200 p-6 rounded-lg shadow-sm hover:shadow-md transition text-center">
+                <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-orange-100 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-gray-900">Mã giới thiệu</h3>
+              </Link>
+
+              {/* <Link href="/app/service" className="bg-gradient-to-b from-sky-100 to-blue-200 p-6 rounded-lg shadow-sm hover:shadow-md transition text-center">
+                <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-green-100 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-gray-900">Đặt Dịch Vụ</h3>
+              </Link> */}
             </div>
-            <span className="text-xs font-bold text-slate-500 group-hover:text-blue-600 uppercase tracking-wider">{label}</span>
-        </div>
-    );
-}
 
-// Transaction Item với thiết kế hiện đại
-function TransactionItem({ title, date, amount, isPositive }: any) {
-    return (
-        <div className="flex items-center justify-between p-4 bg-white hover:bg-slate-50 rounded-2xl transition-all border border-transparent hover:border-slate-100 shadow-sm hover:shadow-md cursor-pointer">
-            <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isPositive ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-600'}`}>
-                    {/* Thêm logic Icon ở đây dựa trên title */}
-                    <div className="font-bold text-lg">{title.charAt(0)}</div>
-                </div>
+            {/* SECTION: KHUYẾN MÃI */}
+            <section className="space-y-6">
+              <div className="flex justify-between items-end px-1">
                 <div>
-                    <p className="font-bold text-slate-800 text-sm">{title}</p>
-                    <p className="text-xs text-slate-400 font-medium">{date}</p>
+                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">🎁 Khuyến mãi & Ưu đãi</h2>
+                  <p className="text-sm text-gray-500 mt-1">Săn deal hời, làm đẹp rạng ngời</p>
                 </div>
-            </div>
-            <div className={`font-bold text-base ${isPositive ? 'text-emerald-500' : 'text-slate-900'}`}>
-                {isPositive ? '+' : ''}{amount}
-            </div>
+                <Link href="/app/promotions" className="text-teal-600 hover:text-teal-700 text-sm font-semibold">
+                  Xem tất cả →
+                </Link>
+              </div>
+
+              <div className="rounded-2xl overflow-hidden shadow-md relative group h-56 md:h-80 w-full">
+                <Image
+                  src={config?.banner || "/img/vanillabg.jpeg"}
+                  alt="Banner"
+                  fill
+                  className="object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {(promotions as Promotion[])?.slice(0, 3).map((promotion) => (
+                  <div key={promotion._id} className="group bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden flex flex-col">
+                    <div className="bg-gradient-to-r from-pink-500 to-rose-400 p-4 text-white flex justify-between items-start">
+                      <div>
+                        <h3 className="font-bold text-lg leading-tight">{promotion.name}</h3>
+                        <p className="text-white/80 text-xs mt-1">Mã: {promotion.code}</p>
+                      </div>
+                      <span className="bg-white text-pink-600 px-2 py-1 rounded-lg text-xs font-bold">
+                        -{promotion.type === 'percentage' ? `${promotion.discountValue}%` : `${(promotion.discountValue / 1000).toFixed(0)}K`}
+                      </span>
+                    </div>
+                    <div className="p-4 flex-1 flex flex-col justify-between gap-4">
+                      <p className="text-gray-600 text-sm line-clamp-2">{promotion.description}</p>
+                      <Link href="/app/booking" className="w-full text-center py-2 bg-pink-50 text-pink-600 rounded-lg font-semibold text-sm hover:bg-pink-600 hover:text-white transition-all">
+                        Dùng ngay
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+          </div>
+        </main>
+
+        <div className="fixed bottom-0 left-0 right-0 z-50">
+          <BottomNav />
         </div>
-    );
+      </div>
+    </>
+  );
 }
