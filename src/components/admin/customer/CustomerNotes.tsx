@@ -4,13 +4,12 @@ import { format, parseISO } from 'date-fns';
 import { CheckCircle2, FileText, User } from 'lucide-react';
 import Image from 'next/image';
 
-// 1. Định nghĩa lại Interface khớp hoàn toàn với Hook
 interface Note {
     id: string;
     content: string;
     type: 'normal' | 'important';
     author: string;
-    createdAt: string; 
+    createdAt: string;
     authorAvatar?: string;
 }
 
@@ -54,8 +53,8 @@ const NoteItem = ({ note }: { note: Note }) => {
                 </div>
 
                 <div className={`p-4 rounded-2xl border text-[13px] leading-relaxed shadow-sm transition-all ${note.type === 'important'
-                        ? 'bg-rose-50 border-rose-100 text-rose-700 font-medium'
-                        : 'bg-[#F7FAFC] border-gray-100 text-[#4A5568]'
+                    ? 'bg-rose-50 border-rose-100 text-rose-700 font-medium'
+                    : 'bg-[#F7FAFC] border-gray-100 text-[#4A5568]'
                     }`}>
                     {note.content}
                 </div>
