@@ -10,7 +10,7 @@ interface Note {
     content: string;
     type: 'normal' | 'important';
     author: string;
-    createdAt: string; // Đồng bộ với trường createdAt từ hook
+    createdAt: string; 
     authorAvatar?: string;
 }
 
