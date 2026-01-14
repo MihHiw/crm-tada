@@ -1,0 +1,42 @@
+name: Notify Parent Repo on Push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify-parent:
+    name: Trigger Parent Repo Update
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Trigger parent repository update
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.PARENT_REPO_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/Tadagram/tadagram/dispatches \
+            -d '{
+              "event_type": "submodule-updated",
+              "client_payload": {
+                "submodule": "vanilla-beauty-crm-app",
+                "commit": "${{ github.sha }}",
+                "repository": "${{ github.repository }}",
+                "ref": "${{ github.ref }}"
+              }
+            }'
+
+      - name: Summary
+        run: |
+          echo "### 🔔 Parent Repository Notified" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Submodule**: vanilla-beauty-crm-app" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Parent Repo**: Tadagram/tadagram" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The parent repository will automatically update this submodule." >> $GITHUB_STEP_SUMMARY

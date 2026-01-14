@@ -1,0 +1,66 @@
+import { User } from '@/types/types';
+
+
+
+export const mockUsers: User[] = [
+    {
+        id: 'user-admin-01',
+        full_name: 'Nguyễn Văn Quản Lý',
+        email: 'admin@vanillaspa.com',
+        phone: '0348210923',
+        role_id: 1,
+        is_active: true,
+        created_at: '2025-01-01T00:00:00Z',
+        avatar_url: 'https://i.pravatar.cc/150?u=admin',
+    },
+    {
+        id: 'staff-01',
+        full_name: 'Trần Thị Kỹ Thuật',
+        email: 'staff1@vanillaspa.com',
+        phone: '0971225121',
+        role_id: 3,
+        is_active: true,
+        created_at: '2025-01-10T00:00:00Z',
+        avatar_url: 'https://i.pravatar.cc/150?u=staff1',
+    },
+    {
+        id: 'staff-02',
+        full_name: 'Lê Văn Sale',
+        email: 'sale@vanillaspa.com',
+        phone: '0909000333',
+        role_id: 3,
+        is_active: true,
+        created_at: '2025-01-15T00:00:00Z',
+        avatar_url: 'https://i.pravatar.cc/150?u=staff2',
+    },
+    {
+        id: 'manager-01',
+        full_name: 'Lê Văn A',
+        email: 'sale@vanillaspa.com',
+        phone: '0909000333',
+        role_id: 2,
+        is_active: true,
+        created_at: '2025-01-15T00:00:00Z',
+        avatar_url: 'https://i.pravatar.cc/150?u=staff2',
+    },
+    {
+        id: 'cust-01',
+        full_name: 'Phạm Khách Hàng',
+        email: 'khach1@gmail.com',
+        phone: '0123456789',
+        role_id: 4,
+        is_active: true,
+        created_at: '2025-02-01T00:00:00Z',
+        avatar_url: 'https://i.pravatar.cc/150?u=cust1',
+    },
+    {
+        id: 'cust-02',
+        full_name: 'Hoàng Thị VIP',
+        email: 'vip@gmail.com',
+        phone: '0987654321',
+        role_id: 4,
+        is_active: true,
+        created_at: '2025-02-05T00:00:00Z',
+        avatar_url: 'https://i.pravatar.cc/150?u=cust2',
+    },
+];

@@ -1,139 +1,54 @@
-"use client";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
-const subscribe = () => () => { };
-
-export default function LoadingScreen() {
-  const isClient = useSyncExternalStore(subscribe, () => true, () => false);
-  const [percent, setPercent] = useState(0);
+export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isClient) return;
+    if (router.isReady && router.pathname === '/') {
+      const token = localStorage.getItem('token');
+      console.log('🏠 [Landing Page] Pathname:', router.pathname, '| Token:', token ? 'EXISTS' : 'NONE');
 
-    // ÉP THẺ BODY VÀ HTML PHẢI FULL MÀN HÌNH ĐỂ KHÔNG BỊ LỆCH
-    document.documentElement.style.margin = '0';
-    document.documentElement.style.padding = '0';
-    document.documentElement.style.height = '100%';
-    document.body.style.margin = '0';
-    document.body.style.padding = '0';
-    document.body.style.height = '100%';
-    document.body.style.backgroundColor = '#020617';
-
-    const interval = setInterval(() => {
-      setPercent((prev) => (prev < 100 ? prev + 1 : 100));
-    }, 25);
-
-    const timer = setTimeout(() => {
-      router.push("/login");
-    }, 3200);
-
-    return () => {
-      clearTimeout(timer);
-      clearInterval(interval);
-    };
-  }, [isClient, router]);
-
-  if (!isClient) return null;
+      if (token) {
+        console.log('🏠 [Landing Page] Redirecting to /app');
+        router.replace('/app');
+      } else {
+        console.log('🏠 [Landing Page] Redirecting to /register');
+        router.replace('/register');
+      }
+    }
+  }, [router.isReady, router.pathname, router]);
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        backgroundColor: '#020617',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 99999,
-        overflow: 'hidden',
-        color: '#22d3ee',
-        fontFamily: 'monospace',
-        boxSizing: 'border-box'
-      }}
-    >
-      {/* Background Grid Layer */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          opacity: 0.2,
-          pointerEvents: 'none',
-          backgroundImage: 'linear-gradient(#0ea5e91a 1px, transparent 1px), linear-gradient(90deg, #0ea5e91a 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-          transform: 'perspective(1000px) rotateX(60deg) translateY(-100px)',
-          transformOrigin: 'top'
-        }}
-      />
-
-      <div style={{ position: 'relative', textAlign: 'center', zIndex: 10 }}>
-        {/* HUD Circular Loader */}
-        <div style={{ position: 'relative', width: '300px', height: '300px', margin: '0 auto 50px auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-
-          {/* Animated Rings */}
-          <div
-            className="animate-spin"
-            style={{ position: 'absolute', inset: 0, border: '1px dashed rgba(34,211,238,0.2)', borderRadius: '50%', animationDuration: '12s' }}
-          />
-          <div
-            className="animate-spin"
-            style={{ position: 'absolute', inset: '20px', border: '2px double rgba(34,211,238,0.4)', borderRadius: '50%', animationDuration: '8s', animationDirection: 'reverse' }}
-          />
-
-          {/* SVG Progress Circle */}
-          <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
-            <circle cx="150" cy="150" r="135" stroke="rgba(6,182,212,0.05)" strokeWidth="6" fill="transparent" />
-            <motion.circle
-              cx="150" cy="150" r="135"
-              stroke="#22d3ee" strokeWidth="6" fill="transparent"
-              strokeDasharray="848"
-              animate={{ strokeDashoffset: 848 - (848 * percent) / 100 }}
-              style={{ filter: 'drop-shadow(0 0 12px #22d3ee)' }}
-            />
-          </svg>
-
-          {/* CRM TADA Text */}
-          <div>
-            <h1 style={{ fontSize: '36px', fontWeight: '900', letterSpacing: '8px', color: '#fff', margin: 0, textShadow: '0 0 20px rgba(34,211,238,0.8)' }}>
-              CRM TADA
-            </h1>
-            <p style={{ fontSize: '12px', marginTop: '10px', opacity: 0.6, letterSpacing: '4px' }}>SYSTEM INITIALIZING</p>
+    <>
+      <Head>
+        <title>Vanilla Beauty & Wellness</title>
+        <meta name="description" content="Hệ thống đặt lịch làm đẹp" />
+      </Head>
+      <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-gradient-to-br from-pink-100 via-purple-50 to-orange-100">
+        <div className="text-center">
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-pink-500 to-orange-400 flex items-center justify-center animate-pulse">
+            <svg
+              className="w-12 h-12 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              />
+            </svg>
           </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-orange-500 bg-clip-text text-transparent mb-2">
+            Vanilla Beauty & Wellness
+          </h1>
+          <p className="text-gray-600">Đang chuyển hướng...</p>
         </div>
-
-        {/* Progress Bar & Status */}
-        <div style={{ width: '350px', margin: '0 auto' }}>
-          <p className="animate-pulse" style={{ fontSize: '12px', marginBottom: '15px', letterSpacing: '2px' }}>
-            {percent < 100 ? "ESTABLISHING SECURE CONNECTION..." : "ACCESS GRANTED"}
-          </p>
-
-          <div style={{ width: '100%', height: '8px', backgroundColor: 'rgba(34,211,238,0.1)', borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(34,211,238,0.2)', padding: '2px' }}>
-            <motion.div
-              style={{ height: '100%', background: 'linear-gradient(90deg, #0891b2, #22d3ee)', borderRadius: '10px', boxShadow: '0 0 10px #22d3ee' }}
-              initial={{ width: "0%" }}
-              animate={{ width: `${percent}%` }}
-            />
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '10px', fontWeight: 'bold' }}>
-            <span style={{ opacity: 0.5 }}>[{new Date().toLocaleTimeString()}]</span>
-            <span>{percent}%</span>
-          </div>
-
-          <button
-            onClick={() => router.push("/login")}
-            style={{ marginTop: '40px', background: 'none', border: 'none', color: '#0891b2', fontSize: '11px', textDecoration: 'underline', cursor: 'pointer', letterSpacing: '1px' }}
-          >
-            SKIP TO LOGIN
-          </button>
-        </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }

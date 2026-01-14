@@ -1,0 +1,11 @@
+{
+  "name": "Booking & Payment App",
+  "short_name": "BookingApp",
+  "description": "WebApp thanh toán & booking dịch vụ",
+  "start_url": "/app",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4F46E5",
+  "orientation": "portrait-primary",
+  "icons": []
+}
