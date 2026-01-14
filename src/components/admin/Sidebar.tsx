@@ -3,7 +3,6 @@
 import { SidebarItem } from "@/components/admin/SidebarItem";
 import { mockRoles, mockUsers } from "@/mocks";
 import { User } from '@/types/types';
-// ... (Các import icon giữ nguyên)
 import {
     ArrowLeftRight,
     BadgePercent,
@@ -26,16 +25,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// ... (Phần định nghĩa ROLES và MENU_GROUPS giữ nguyên)
-const ROLES = {
-    ADMIN: 1,
-    MANAGER: 2,
-    STAFF: 3,
-    CUSTOMER: 4
-};
-
+// ... (Giữ nguyên phần ROLES và MENU_GROUPS)
+const ROLES = { ADMIN: 1, MANAGER: 2, STAFF: 3, CUSTOMER: 4 };
 const MENU_GROUPS = [
-    // ... (Giữ nguyên nội dung MENU_GROUPS)
     {
         groupLabel: "Tổng quan & Báo cáo",
         roleIds: [ROLES.ADMIN, ROLES.MANAGER],
@@ -82,7 +74,6 @@ const MENU_GROUPS = [
 ];
 
 export const Sidebar = () => {
-    // ... (Các hook useState và useEffect giữ nguyên)
     const pathname = usePathname();
     const [currentUser, setCurrentUser] = useState<User | null>(mockUsers[0]);
     const [clickedGroupIndex, setClickedGroupIndex] = useState<number | null>(null);
@@ -91,7 +82,7 @@ export const Sidebar = () => {
         const activeIndex = MENU_GROUPS.findIndex(group =>
             group.items.some(item => item.href === pathname)
         );
-        if (activeIndex !== -1 && activeIndex !== clickedGroupIndex) {
+        if (activeIndex !== -1) {
             const timer = setTimeout(() => {
                 setClickedGroupIndex(activeIndex);
             }, 0);
@@ -133,15 +124,14 @@ export const Sidebar = () => {
     const displayRoleName = mockRoles.find(r => r.id === currentUser?.role_id)?.name || "Người dùng";
 
     return (
-        // 👇 BƯỚC 2: Sửa màu nền của thẻ <aside>
-        <aside className="w-64 bg-gradient-to-b from-midnight via-slate-900 to-midnight text-slate-300 flex flex-col fixed h-full z-20 shadow-xl border-r border-slate-800 font-sans">
+        // 👇 1. SỬA MÀU CHỮ CHÍNH: text-white
+        <aside className="w-64 bg-[#0f172a] text-white flex flex-col fixed h-full z-20 shadow-xl border-r border-[#1e293b] font-sans transition-all duration-300">
+
             {/* Phần Logo */}
-            <div className="h-20 flex flex-col items-center justify-center border-b border-slate-800 relative overflow-hidden flex-shrink-0">
-                {/* Hiệu ứng sáng nhẹ phía sau logo - đổi sang màu xanh */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-blue-500/20 rounded-full blur-2xl"></div>
+            <div className="h-20 flex flex-col items-center justify-center border-b border-[#1e293b] relative overflow-hidden flex-shrink-0">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl"></div>
                 <Link href="/admin" className="relative z-10">
                     <div className="relative h-32 w-32">
-                        {/* Bạn nên cân nhắc đổi logo sang màu trắng để nổi bật trên nền tối */}
                         <Image src="/img/logo-vanila.png" alt="Logo" fill className="object-contain brightness-0 invert" priority />
                     </div>
                 </Link>
@@ -157,26 +147,23 @@ export const Sidebar = () => {
                     const isOpen = clickedGroupIndex === index;
 
                     return (
-                        <div key={index} className="select-none ">
-                            {/* Thanh tiêu đề nhóm (Group Label) */}
+                        <div key={index} className="select-none">
                             <div
                                 onClick={() => toggleGroup(index)}
-                                // Đổi màu hover và màu active sang tông xanh/tối
-                                className={`px-4 mb-2 flex items-center justify-between cursor-pointer group/label hover:bg-slate-800/50 p-2 rounded-lg transition-all ${isOpen ? "bg-slate-800" : ""}`}
+                                className={`px-4 mb-2 flex items-center justify-between cursor-pointer group/label hover:bg-[#1e293b] p-2 rounded-lg transition-all ${isOpen ? "bg-[#1e293b]" : ""}`}
                             >
                                 <div className="flex items-center gap-2 opacity-80 group-hover/label:opacity-100">
-                                    {/* Đổi màu icon Sparkles */}
+                                    {/* 👇 Icon màu trắng */}
                                     <Sparkles size={10} className="text-white" />
-                                    {/* Đổi màu chữ label */}
-                                    <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isOpen ? "text-white" : "text-white"}`}>
+                                    {/* 👇 Chữ Label màu trắng */}
+                                    <p className={`text-[10px] font-bold uppercase tracking-[0.2em] text-white`}>
                                         {group.groupLabel}
                                     </p>
                                 </div>
-                                {/* Đổi màu icon Chevron */}
-                                <ChevronRight size={14} className={`text-white transition-transform duration-300 ${isOpen ? "rotate-90 text-white" : ""}`} />
+                                {/* 👇 Mũi tên màu trắng (có độ trong suốt nhẹ khi chưa active) */}
+                                <ChevronRight size={14} className={`text-white/70 transition-transform duration-300 ${isOpen ? "rotate-90 text-white" : ""}`} />
                             </div>
 
-                            {/* Danh sách các mục con */}
                             <div className={`space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-[500px] opacity-100 mb-4" : "max-h-0 opacity-0"}`}>
                                 {visibleItems.map((item) => (
                                     <SidebarItem
@@ -184,7 +171,7 @@ export const Sidebar = () => {
                                         icon={item.icon}
                                         label={item.label}
                                         href={item.href}
-                                    // Bạn cần đảm bảo component SidebarItem cũng hỗ trợ dark mode (ví dụ: nhận props activeClassName để đổi màu chữ/icon khi active)
+
                                     />
                                 ))}
                             </div>
@@ -193,24 +180,25 @@ export const Sidebar = () => {
                 })}
             </div>
 
-            {/* 👇 BƯỚC 3: Sửa màu nền phần User Profile */}
-            <div className="p-4 bg-gradient-to-t from-midnight to-transparent mt-auto">
-                <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-800/50 border border-slate-700 shadow-sm backdrop-blur-sm">
+            {/* 👇 SỬA MÀU CHỮ USER PROFILE */}
+            <div className="p-4 bg-gradient-to-t from-[#020617] to-transparent mt-auto">
+                <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#1e293b]/50 border border-[#334155] shadow-sm backdrop-blur-sm">
                     <div className="relative w-10 h-10">
                         <Image
                             src={currentUser?.avatar_url || "https://i.pravatar.cc/150?img=11"}
                             alt="Avatar" fill className="rounded-full object-cover"
                         />
-                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-slate-800 rounded-full"></span>
+                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-[#1e293b] rounded-full"></span>
                     </div>
                     <div className="flex-1 overflow-hidden">
-                        {/* Đổi màu chữ tên và vai trò */}
-                        <p className="text-sm font-bold text-slate-200 truncate">{currentUser?.full_name || "User"}</p>
-                        <p className="text-[10px] text-slate-400 uppercase">{displayRoleName}</p>
+                        {/* 👇 Tên user màu trắng tinh */}
+                        <p className="text-sm font-bold text-white truncate">{currentUser?.full_name || "User"}</p>
+                        {/* 👇 Role màu trắng mờ */}
+                        <p className="text-[10px] text-white/70 uppercase">{displayRoleName}</p>
                     </div>
                 </div>
-                {/* Đổi màu nút đăng xuất */}
-                <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg mt-2 transition-colors">
+                {/* 👇 Nút đăng xuất vẫn giữ màu đỏ nhạt để cảnh báo, nhưng sáng hơn để hợp nền tối */}
+                <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg mt-2 transition-colors">
                     Đăng xuất
                 </button>
             </div>

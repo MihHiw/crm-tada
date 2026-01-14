@@ -1,7 +1,7 @@
 "use client";
 
 import { LucideIcon } from "lucide-react";
-import Link from "next/link"; // 1. Import Link
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 interface SidebarItemProps {
@@ -18,14 +18,25 @@ export const SidebarItem = ({ icon: Icon, label, href }: SidebarItemProps) => {
 
     return (
         <Link
-            href={href} 
+            href={href}
             className={`
-        flex items-center gap-x-2 text-slate-500 text-sm font-[500] pl-6 transition-all hover:text-slate-600 hover:bg-slate-300/20 w-full rounded-lg
-        ${isActive && "text-sky-700 bg-sky-200/20 hover:bg-sky-200/20 hover:text-sky-700"}
-      `}
+                group flex items-center gap-x-2 text-sm font-[500] pl-6 transition-all w-full rounded-lg
+                
+                /* 👇 1. TRẠNG THÁI THƯỜNG (INACTIVE) */
+                /* Text màu xám sáng (Slate-400) để dịu mắt, Hover vào thì sáng trắng lên */
+                text-slate-400 hover:text-white hover:bg-white/10
+
+                /* 👇 2. TRẠNG THÁI ACTIVE */
+                /* Text trắng tinh, Nền màu xanh nổi bật (Blue-600) */
+                ${isActive && "text-white bg-blue-600 hover:bg-blue-700 shadow-md"}
+            `}
         >
             <div className="flex items-center gap-x-2 py-4">
-                <Icon size={22} className={isActive ? "text-sky-700" : "text-slate-500"} />
+                {/* 👇 3. ICON: Đổi màu theo trạng thái */}
+                <Icon
+                    size={22}
+                    className={`transition-colors ${isActive ? "text-white" : "text-slate-400 group-hover:text-white"}`}
+                />
                 {label}
             </div>
         </Link>
