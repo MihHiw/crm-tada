@@ -7,6 +7,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -26,6 +27,8 @@ module.exports = {
           light: '#0F4A55',
           gold: '#D4AF6A',
         },
+        midnight: '#0f172a',
+
 
         museBg: '#E8ECEE',
         clinicLight: '#F3F8F8',
