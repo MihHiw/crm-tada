@@ -1,192 +1,329 @@
 "use client";
-import Sidebar from '@/components/admin/Sidebar'; // Đảm bảo đường dẫn import đúng
+import Sidebar from '@/components/admin/Sidebar';
+import { LOCATION_DATA, RegionKey } from '@/constants/locations';
 import { useDashboardData } from '@/hooks/dashboard/useDashboardData';
-import { Bell, Calendar, Download, HelpCircle, Search, TrendingUp } from 'lucide-react';
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
+import {
+    Building2,
+    Calendar, CheckCircle2, Download,
+    Filter,
+    LayoutDashboard,
+    MapPin, Search, TrendingUp
+} from 'lucide-react';
+import { useState } from 'react';
+
+// --- Interfaces ---
+interface StatItem {
+    label: string;
+    val: string;
+    trend: string;
+    color: string;
+    icon: any;
+}
+
+interface AllocationItem {
+    label: string;
+    percent: number;
+    color: string;
+}
+
 
 export default function DashboardPage() {
-    const { chartData, stats, allocations, recentTransactions, loading } = useDashboardData();
+    // 1. State bộ lọc (Đồng bộ chặt chẽ với logic Hook)
+    const [filters, setFilters] = useState({
+        year: '2026',
+        month: 'Tất cả',
+        region: 'Tất cả',
+        province: 'Tất cả',
+        city: 'Tất cả'
+    });
 
-    if (loading) return (
-        <div className="h-screen flex items-center justify-center bg-[#0B0F1A] text-white">
-            Đang tải dữ liệu...
-        </div>
-    );
+    const [isConfirmed, setIsConfirmed] = useState(false);
+
+    // 2. Truy xuất dữ liệu qua Hook chuyên dụng
+    const { stats, allocations, recentTransactions, loading } = useDashboardData(filters, isConfirmed);
+
+    // --- Logic xử lý Dropdown phụ thuộc: Tự động reset cấp dưới khi cấp trên thay đổi ---
+    const handleRegionChange = (val: string) => {
+        setFilters(prev => ({
+            ...prev,
+            region: val,
+            province: 'Tất cả',
+            city: 'Tất cả'
+        }));
+        setIsConfirmed(false);
+    };
+
+    const handleProvinceChange = (val: string) => {
+        setFilters(prev => ({
+            ...prev,
+            province: val,
+            city: 'Tất cả'
+        }));
+        setIsConfirmed(false);
+    };
+
+    const handleConfirmFilter = () => {
+        setIsConfirmed(true);
+    };
 
     return (
         <div className="flex min-h-screen bg-[#0B0F1A]">
-            {/* Sidebar cố định bên trái */}
             <Sidebar adminName="Quản trị viên" />
 
-            {/* Nội dung chính bên phải */}
             <main className="flex-1 flex flex-col min-w-0">
-                {/* Top Header/Navbar */}
+                {/* Header thanh tìm kiếm */}
                 <header className="h-16 border-b border-gray-800 flex items-center justify-between px-8 bg-[#0B0F1A]/80 backdrop-blur-md sticky top-0 z-30">
                     <div className="relative w-96">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                         <input
                             type="text"
-                            placeholder="Tìm kiếm báo cáo, dữ liệu..."
+                            placeholder="Tìm kiếm mã hồ sơ, khách hàng..."
                             className="w-full bg-gray-800/50 border border-gray-700 rounded-lg py-1.5 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-blue-500"
                         />
                     </div>
-                    <div className="flex items-center gap-4 text-gray-400">
-                        <button className="hover:text-white transition-colors"><Bell size={20} /></button>
-                        <button className="hover:text-white transition-colors"><HelpCircle size={20} /></button>
-                    </div>
                 </header>
 
-                {/* Dashboard Content */}
                 <div className="p-8 space-y-8 overflow-y-auto">
-                    {/* Header Section */}
-                    <div className="flex justify-between items-end">
-                        <div>
-                            <h1 className="text-3xl font-bold text-white">Trang tổng quan</h1>
-                            <p className="text-gray-500 text-sm mt-1">Cập nhật lần cuối: Hôm nay, 09:41</p>
-                        </div>
-                        <div className="flex gap-3 text-white">
-                            <button className="flex items-center gap-2 bg-[#161D2F] px-4 py-2 rounded-xl text-sm border border-gray-800 hover:bg-gray-800 transition-all">
-                                <Calendar size={16} className="text-blue-500" /> Tháng này
-                            </button>
-                            <button className="flex items-center gap-2 bg-blue-600 px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all">
-                                <Download size={16} /> Xuất báo cáo
-                            </button>
-                        </div>
-                    </div>
+                    {/* KHỐI BỘ LỌC PHÂN CẤP */}
+                    <div className="flex flex-col gap-6 bg-[#161D2F] p-6 rounded-[24px] border border-gray-800 shadow-2xl">
+                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
 
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {stats.map((s, i) => (
-                            <div key={i} className="bg-[#161D2F] rounded-[32px] p-6 border border-gray-800 hover:border-blue-500/30 transition-all cursor-pointer">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className={`p-2 rounded-xl bg-gray-800/50 ${s.color}`}>
-                                        <s.icon size={20} />
-                                    </div>
-                                    <span className="text-green-500 text-[10px] font-bold bg-green-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
-                                        {s.trend} <TrendingUp size={10} />
-                                    </span>
+                            {/* Lọc Miền */}
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] text-gray-500 uppercase font-black ml-1 tracking-wider">Vùng Miền</label>
+                                <div className="flex items-center gap-2 bg-[#0B0F1A] px-3 py-2 rounded-xl border border-gray-800 hover:border-blue-500/50 transition-colors">
+                                    <MapPin size={14} className="text-blue-500" />
+                                    <select
+                                        className="bg-transparent text-xs font-bold text-white outline-none cursor-pointer w-full"
+                                        value={filters.region}
+                                        onChange={(e) => handleRegionChange(e.target.value)}
+                                    >
+                                        <option value="Tất cả" className="bg-[#161D2F]">Tất cả miền</option>
+                                        {Object.keys(LOCATION_DATA).map(r => (
+                                            <option key={r} value={r} className="bg-[#161D2F]">{r}</option>
+                                        ))}
+                                    </select>
                                 </div>
-                                <p className="text-gray-500 text-xs font-medium">{s.label}</p>
-                                <p className="text-xl font-bold mt-1 tracking-tight text-white">{s.val}</p>
                             </div>
-                        ))}
+
+                            {/* Lọc Tỉnh (Disabled nếu chưa chọn Miền) */}
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] text-gray-500 uppercase font-black ml-1 tracking-wider">Tỉnh / Thành phố</label>
+                                <div className={`flex items-center gap-2 bg-[#0B0F1A] px-3 py-2 rounded-xl border border-gray-800 hover:border-blue-500/50 transition-colors ${filters.region === "Tất cả" ? "opacity-40" : ""}`}>
+                                    <Building2 size={14} className="text-purple-500" />
+                                    <select
+                                        className="bg-transparent text-xs font-bold text-white outline-none cursor-pointer w-full disabled:cursor-not-allowed"
+                                        value={filters.province}
+                                        disabled={filters.region === "Tất cả"}
+                                        onChange={(e) => handleProvinceChange(e.target.value)}
+                                    >
+                                        <option value="Tất cả" className="bg-[#161D2F]">Tất cả Tỉnh</option>
+                                        {filters.region !== "Tất cả" &&
+                                            Object.keys(LOCATION_DATA[filters.region as RegionKey]).map(p => (
+                                                <option key={p} value={p} className="bg-[#161D2F]">{p}</option>
+                                            ))
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Lọc Quận (Disabled nếu chưa chọn Tỉnh) */}
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] text-gray-500 uppercase font-black ml-1 tracking-wider">Quận / Huyện</label>
+                                <div className={`flex items-center gap-2 bg-[#0B0F1A] px-3 py-2 rounded-xl border border-gray-800 hover:border-blue-500/50 transition-colors ${filters.province === "Tất cả" ? "opacity-40" : ""}`}>
+                                    <Search size={14} className="text-orange-500" />
+                                    <select
+                                        className="bg-transparent text-xs font-bold text-white outline-none cursor-pointer w-full disabled:cursor-not-allowed"
+                                        value={filters.city}
+                                        disabled={filters.province === "Tất cả"}
+                                        onChange={(e) => {
+                                            setFilters(prev => ({ ...prev, city: e.target.value }));
+                                            setIsConfirmed(false);
+                                        }}
+                                    >
+                                        <option value="Tất cả" className="bg-[#161D2F]">Tất cả Quận/Huyện</option>
+                                        {filters.region !== "Tất cả" && filters.province !== "Tất cả" &&
+                                            (LOCATION_DATA[filters.region as RegionKey] as any)[filters.province]?.map((c: string) => (
+                                                <option key={c} value={c} className="bg-[#161D2F]">{c}</option>
+                                            ))
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Lọc Năm */}
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] text-gray-500 uppercase font-black ml-1 tracking-wider">Năm</label>
+                                <div className="flex items-center gap-2 bg-[#0B0F1A] px-3 py-2 rounded-xl border border-gray-800">
+                                    <Calendar size={14} className="text-blue-500" />
+                                    <select
+                                        className="bg-transparent text-xs font-bold text-white outline-none cursor-pointer w-full"
+                                        value={filters.year}
+                                        onChange={(e) => {
+                                            setFilters(prev => ({ ...prev, year: e.target.value }));
+                                            setIsConfirmed(false);
+                                        }}
+                                    >
+                                        <option value="2023" className="bg-[#161D2F]">2023</option>
+                                        <option value="2024" className="bg-[#161D2F]">2024</option>
+                                        <option value="2025" className="bg-[#161D2F]">2025</option>
+                                        <option value="2026" className="bg-[#161D2F]">2026</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Lọc Tháng (QUAN TRỌNG: Format padStart(2, '0')) */}
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] text-gray-500 uppercase font-black ml-1 tracking-wider">Tháng</label>
+                                <div className="flex items-center gap-2 bg-[#0B0F1A] px-3 py-2 rounded-xl border border-gray-800">
+                                    <Filter size={14} className="text-blue-500" />
+                                    <select
+                                        className="bg-transparent text-xs font-bold text-white outline-none cursor-pointer w-full"
+                                        value={filters.month}
+                                        onChange={(e) => {
+                                            setFilters(prev => ({ ...prev, month: e.target.value }));
+                                            setIsConfirmed(false);
+                                        }}
+                                    >
+                                        <option value="Tất cả" className="bg-[#161D2F]">Cả năm</option>
+                                        {Array.from({ length: 12 }, (_, i) => {
+                                            const monthVal = String(i + 1).padStart(2, '0');
+                                            return (
+                                                <option key={i + 1} value={monthVal} className="bg-[#161D2F]">Tháng {i + 1}</option>
+                                            );
+                                        })}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end pt-2">
+                            <button
+                                onClick={handleConfirmFilter}
+                                className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-black text-xs transition-all shadow-lg shadow-blue-600/30 active:scale-95 flex items-center justify-center gap-2"
+                            >
+                                <CheckCircle2 size={18} /> XÁC NHẬN TRUY XUẤT
+                            </button>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-12 gap-6">
-                        {/* Trend Chart */}
-                        <div className="col-span-12 lg:col-span-8 bg-[#161D2F] rounded-[32px] p-8 border border-gray-800">
-                            <div className="flex justify-between items-start mb-6 text-white">
+                    {/* VÙNG HIỂN THỊ KẾT QUẢ */}
+                    {!isConfirmed ? (
+                        <div className="h-[50vh] flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-700">
+                            <div className="w-20 h-20 bg-blue-500/5 rounded-full flex items-center justify-center mb-6 border border-blue-500/10">
+                                <LayoutDashboard size={40} className="text-gray-700" />
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-300">Trung tâm phân tích báo cáo</h2>
+                            <p className="text-gray-500 text-xs mt-2">Vui lòng chọn phạm vi và nhấn Xác nhận truy xuất để bắt đầu.</p>
+                        </div>
+                    ) : loading ? (
+                        <div className="h-[50vh] flex flex-col items-center justify-center space-y-4">
+                            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                            <p className="text-gray-500 font-bold uppercase text-[9px] tracking-widest text-center">Đang tải dữ liệu báo cáo...</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="flex items-center justify-between border-l-4 border-blue-500 pl-4 py-1">
                                 <div>
-                                    <h3 className="text-gray-500 text-sm font-medium">Xu hướng dòng tiền</h3>
-                                    <div className="flex items-baseline gap-2 mt-1">
-                                        <span className="text-2xl font-bold">15.4 tỷ</span>
-                                        <span className="text-green-500 text-xs font-bold">+12% vs năm ngoái</span>
+                                    <h2 className="text-lg font-black text-white uppercase tracking-tight">Báo cáo tổng hợp</h2>
+                                    <p className="text-gray-500 text-[10px] font-bold uppercase mt-0.5 tracking-wide">
+                                        Phạm vi: {filters.city !== 'Tất cả' ? filters.city : filters.province !== 'Tất cả' ? filters.province : filters.region} | {filters.month !== 'Tất cả' ? `Tháng ${filters.month}` : 'Cả năm'} {filters.year}
+                                    </p>
+                                </div>
+                                <button className="p-2 bg-gray-800/50 rounded-lg text-gray-400 border border-gray-700 hover:text-white transition-colors">
+                                    <Download size={18} />
+                                </button>
+                            </div>
+
+                            {/* Thẻ chỉ số (Stats) */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {stats.map((s: StatItem, i: number) => (
+                                    <div key={i} className="bg-[#161D2F] rounded-[24px] p-6 border border-gray-800 hover:border-gray-700 transition-colors">
+                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-[#0B0F1A] border border-gray-800 ${s.color}`}>
+                                            <s.icon size={22} />
+                                        </div>
+                                        <p className="text-gray-500 text-[9px] font-black uppercase tracking-wider">{s.label}</p>
+                                        <p className="text-2xl font-black mt-1 text-white tabular-nums tracking-tight">{s.val}</p>
+                                        <div className="mt-3 flex items-center gap-2">
+                                            <span className="text-emerald-500 text-[10px] font-black bg-emerald-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+                                                <TrendingUp size={10} /> {s.trend}
+                                            </span>
+                                            <span className="text-gray-600 text-[9px] font-bold uppercase">vs kỳ trước</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Chi tiết giao dịch và tỷ trọng */}
+                            <div className="grid grid-cols-12 gap-8">
+                                <div className="col-span-12 lg:col-span-4 bg-[#161D2F] rounded-[24px] p-6 border border-gray-800 shadow-xl">
+                                    <h3 className="font-black text-white mb-6 uppercase text-[10px] tracking-widest border-b border-gray-800 pb-3">Phân bổ danh mục</h3>
+                                    <div className="space-y-6">
+                                        {allocations.map((item: AllocationItem, idx: number) => (
+                                            <div key={idx} className="space-y-2">
+                                                <div className="flex justify-between text-[10px] font-black uppercase">
+                                                    <span className="text-gray-500">{item.label}</span>
+                                                    <span className="text-white">{item.percent}%</span>
+                                                </div>
+                                                <div className="w-full bg-[#0B0F1A] h-1.5 rounded-full overflow-hidden border border-gray-800">
+                                                    <div className={`${item.color} h-full transition-all duration-1000`} style={{ width: `${item.percent}%` }}></div>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
-                                <select className="bg-[#0B0F1A] border border-gray-800 rounded-lg px-3 py-1 text-xs text-gray-400 focus:outline-none">
-                                    <option>Năm nay</option>
-                                </select>
-                            </div>
-                            <div className="h-[300px] w-full">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart data={chartData}>
-                                        <defs>
-                                            <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                            </linearGradient>
-                                        </defs>
-                                        <Tooltip contentStyle={{ backgroundColor: '#161D2F', border: '1px solid #1f2937', borderRadius: '12px', color: '#fff' }} />
-                                        <Area type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#4b5563', fontSize: 12 }} dy={10} />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
 
-                        {/* Right Sidebar Stats */}
-                        <div className="col-span-12 lg:col-span-4 space-y-6 text-white">
-                            {/* Portfolio Allocation */}
-                            <div className="bg-[#161D2F] rounded-[32px] p-6 border border-gray-800">
-                                <h3 className="font-bold mb-6 flex justify-between items-center text-white">
-                                    Phân bổ danh mục <span className="text-[10px] text-gray-500 font-normal uppercase">Q3 2023</span>
-                                </h3>
-                                <div className="space-y-4">
-                                    {allocations.map((item, idx) => (
-                                        <div key={idx} className="space-y-1.5">
-                                            <div className="flex justify-between text-xs font-medium">
-                                                <span className="text-gray-400">{item.label}</span>
-                                                <span>{item.percent}%</span>
-                                            </div>
-                                            <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                                                <div className={`${item.color} h-full rounded-full`} style={{ width: `${item.percent}%` }}></div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Sales Performance */}
-                            <div className="bg-[#161D2F] rounded-[32px] p-6 border border-gray-800">
-                                <div className="flex justify-between items-start mb-6">
-                                    <h3 className="font-bold">Hiệu suất bán hàng</h3>
-                                    <span className="text-green-500 text-[10px] font-bold">120% Target</span>
-                                </div>
-                                <div className="flex items-end justify-around h-24 gap-2">
-                                    <div className="w-8 bg-gray-800 rounded-t-sm h-[40%]"></div>
-                                    <div className="w-10 bg-blue-500 rounded-t-sm h-[90%] shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
-                                    <div className="w-8 bg-gray-800 rounded-t-sm h-[25%]"></div>
-                                </div>
-                                <div className="flex justify-around mt-2 text-[10px] text-gray-500 uppercase font-bold">
-                                    <span>Nhóm A</span>
-                                    <span className="text-blue-500">Nhóm B</span>
-                                    <span>Nhóm C</span>
+                                <div className="col-span-12 lg:col-span-8 bg-[#161D2F] rounded-[24px] border border-gray-800 overflow-hidden shadow-xl">
+                                    <div className="p-6 border-b border-gray-800 bg-[#1F2937]/20 flex justify-between items-center">
+                                        <h3 className="font-black text-white uppercase text-[10px] tracking-widest">Dòng tiền chi tiết</h3>
+                                        <span className="text-[9px] text-emerald-500 font-bold uppercase animate-pulse tracking-tighter">Live Monitor</span>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left">
+                                            <thead className="text-gray-500 text-[9px] uppercase font-black bg-[#0B0F1A]/50">
+                                                <tr>
+                                                    <th className="px-6 py-4">Đối tác/Khách hàng</th>
+                                                    <th className="px-6 py-4">Sản phẩm vay</th>
+                                                    <th className="px-6 py-4">Hợp đồng</th>
+                                                    <th className="px-6 py-4 text-right">Tình trạng</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-800/50">
+                                                {recentTransactions.length > 0 ? recentTransactions.map((tx: any) => (
+                                                    <tr key={tx.id} className="hover:bg-blue-500/[0.02] transition-colors group">
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center text-[10px] font-black text-blue-400 border border-gray-700">
+                                                                    {tx.name.substring(0, 2).toUpperCase()}
+                                                                </div>
+                                                                <span className="font-bold text-white text-xs">{tx.name}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-[10px] text-gray-400 font-bold uppercase tracking-tight">{tx.type}</td>
+                                                        <td className="px-6 py-4 text-xs font-black text-blue-100 tabular-nums">{tx.val}</td>
+                                                        <td className="px-6 py-4 text-right">
+                                                            <span className={`px-3 py-1 text-[8px] font-black uppercase rounded-md border ${tx.status === 'Hoàn thành'
+                                                                ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5'
+                                                                : 'text-orange-500 border-orange-500/20 bg-orange-500/5'
+                                                                }`}>
+                                                                {tx.status}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                )) : (
+                                                    <tr>
+                                                        <td colSpan={4} className="px-6 py-10 text-center text-gray-500 text-xs italic tracking-widest uppercase font-black opacity-30">
+                                                            -- Dữ liệu trống trong kỳ này --
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Transactions Table */}
-                    <div className="bg-[#161D2F] rounded-[32px] border border-gray-800 overflow-hidden text-white mb-8">
-                        <div className="p-8 flex justify-between items-center">
-                            <h3 className="font-bold text-lg">Giao dịch gần đây</h3>
-                            <div className="relative w-64">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={14} />
-                                <input className="w-full bg-[#0B0F1A] border border-gray-800 rounded-lg py-2 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-blue-500" placeholder="Tìm kiếm giao dịch..." />
-                            </div>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-[#1F2937]/50 text-gray-500 text-[10px] uppercase tracking-widest border-b border-gray-800">
-                                    <tr>
-                                        <th className="px-8 py-4">Khách hàng</th>
-                                        <th className="px-8 py-4">Loại giao dịch</th>
-                                        <th className="px-8 py-4">Ngày</th>
-                                        <th className="px-8 py-4">Giá trị</th>
-                                        <th className="px-8 py-4 text-right">Trạng thái</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-800">
-                                    {recentTransactions.map((tx) => (
-                                        <tr key={tx.id} className="hover:bg-white/5 transition-colors group">
-                                            <td className="px-8 py-5 flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-gray-700"></div>
-                                                <div className="text-sm font-bold">{tx.name}</div>
-                                            </td>
-                                            <td className="px-8 py-5 text-sm text-gray-400">{tx.type}</td>
-                                            <td className="px-8 py-5 text-sm text-gray-400">{tx.date}</td>
-                                            <td className="px-8 py-5 text-sm font-bold">{tx.val}</td>
-                                            <td className="px-8 py-5 text-right">
-                                                <span className={`px-3 py-1 text-[10px] font-bold rounded-full ${tx.status === 'Hoàn thành' ? 'bg-green-500/10 text-green-500' : 'bg-yellow-500/10 text-yellow-500'}`}>
-                                                    {tx.status}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    )}
                 </div>
             </main>
         </div>

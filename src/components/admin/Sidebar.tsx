@@ -1,212 +1,112 @@
 "use client";
-
-import { SidebarItem } from "@/components/admin/SidebarItem";
-import { mockRoles, mockUsers } from "@/mocks";
-import { User } from '@/types/types';
+import { useAuth } from '@/hooks/auth/useAuth'; // Import hook logout
 import {
-    ArrowLeftRight,
-    BadgePercent,
-    CalendarDays,
-    ChevronRight,
-    ClipboardList,
-    Clock,
-    Gift,
-    LayoutDashboard,
-    MessageSquare,
-    ServerIcon,
-    Sparkles,
-    UserCog,
-    Users,
-    UsersRound,
-    Wallet
-} from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+    Calendar,
+    CircleDollarSign,
+    FileText,
+    LayoutGrid,
+    LogOut,
+    LucideIcon,
+    Settings,
+    Users
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-// Định nghĩa mapping Role ID để code dễ đọc hơn
-const ROLES = {
-    ADMIN: 1,
-    MANAGER: 2,
-    STAFF: 3, // Kỹ thuật viên / Nhân viên
-    CUSTOMER: 4
-};
+interface MenuItemType {
+    id: string;
+    label: string;
+    icon: LucideIcon;
+    href: string;
+}
 
-const MENU_GROUPS = [
-    {
-        groupLabel: "Tổng quan & Báo cáo",
-        roleIds: [ROLES.ADMIN, ROLES.MANAGER],
-        items: [
-            { icon: Wallet, label: "Doanh thu & Tài chính", href: "/admin/statistics/revenue", roleIds: [ROLES.ADMIN] },
-            { icon: ArrowLeftRight, label: "Quản lý Nạp & Rút", href: "/admin/statistics/transactions", roleIds: [ROLES.ADMIN] },
-            { icon: LayoutDashboard, label: "Thống kê dịch vụ", href: "/admin/statistics/appointmentTable", roleIds: [ROLES.ADMIN, ROLES.MANAGER] },
-            { icon: UserCog, label: "Tổng hợp hoa hồng", href: "/admin/statistics/commissions", roleIds: [ROLES.ADMIN] },
-        ]
-    },
-    {
-        groupLabel: "Nghiệp vụ",
-        roleIds: [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF],
-        items: [
-            { icon: MessageSquare, label: "Tư Vấn", href: "/admin/profession/consultation", roleIds: [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF] },
-            { icon: ClipboardList, label: "Mua dịch vụ", href: "/admin/profession/service", roleIds: [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF] },
-        ]
-    },
-    {
-        groupLabel: "Quản trị",
-        roleIds: [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF],
-        items: [
-            { icon: UsersRound, label: "Khách hàng", href: "/admin/staff/customers", roleIds: [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF] },
-            { icon: CalendarDays, label: "Lịch hẹn", href: "/admin/staff/booking-management", roleIds: [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF] },
-            { icon: Gift, label: "Khuyến mãi", href: "/admin/staff/promotion-management", roleIds: [ROLES.ADMIN, ROLES.MANAGER] },
-            { icon: Users, label: "Nhân Viên", href: "/admin/staff/staff-management", roleIds: [ROLES.ADMIN, ROLES.MANAGER] },
-            { icon: ServerIcon, label: "Dịch vụ", href: "/admin/staff/service-management", roleIds: [ROLES.ADMIN, ROLES.MANAGER] }
-        ]
-    },
-    {
-        groupLabel: "Cài đặt hoa hồng",
-        roleIds: [ROLES.ADMIN],
-        items: [
-            { icon: BadgePercent, label: "Hoa Hồng Nhân Viên", href: "/admin/staff/referral-management", roleIds: [ROLES.ADMIN] },
-        ]
-    },
-    {
-        groupLabel: "Hệ thống",
-        roleIds: [ROLES.ADMIN],
-        items: [
-            { icon: Clock, label: "Giờ làm việc", href: "/admin/staff/operatingHoursPage", roleIds: [ROLES.ADMIN] },
-        ]
-    }
+const MENU_ITEMS: MenuItemType[] = [
+    { id: 'overview', label: 'Tổng quan', icon: LayoutGrid, href: '/admin/dashboard' },
+    { id: 'customers', label: 'Khách hàng', icon: Users, href: '/admin/customers/customer' },
+    { id: 'transactions', label: 'Giao Dịch', icon: CircleDollarSign, href: '/admin/transaction' },
+    { id: 'reports', label: 'Báo cáo', icon: FileText, href: '/admin/report' },
+    { id: 'calendar', label: 'Lịch làm việc', icon: Calendar, href: '/admin/calendar' },
+    { id: 'settings', label: 'Cài đặt', icon: Settings, href: '/admin/setting' },
 ];
 
-export const Sidebar = () => {
+export default function Sidebar({ adminName }: { adminName: string }) {
     const pathname = usePathname();
-    const [currentUser, setCurrentUser] = useState<User | null>(mockUsers[0]);
-    const [clickedGroupIndex, setClickedGroupIndex] = useState<number | null>(null);
-
-    // --- SỬA LỖI 1: Xử lý Active Menu ---
-    useEffect(() => {
-        // Tìm group đang active
-        const activeIndex = MENU_GROUPS.findIndex(group =>
-            group.items.some(item => item.href === pathname)
-        );
-
-        // Chỉ update nếu index thay đổi và chưa đúng
-        // Sử dụng setTimeout để tránh update synchronous gây lỗi
-        if (activeIndex !== -1 && activeIndex !== clickedGroupIndex) {
-            const timer = setTimeout(() => {
-                setClickedGroupIndex(activeIndex);
-            }, 0);
-            return () => clearTimeout(timer);
-        }
-    }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    // --- SỬA LỖI 2: Xử lý LocalStorage ---
-    useEffect(() => {
-        // Đẩy xuống cuối hàng đợi render
-        const timer = setTimeout(() => {
-            const storedUser = localStorage.getItem("currentUser");
-            if (storedUser) {
-                try {
-                    const parsedUser = JSON.parse(storedUser);
-                    setCurrentUser(parsedUser);
-                } catch (error) {
-                    console.error("Lỗi đọc dữ liệu user:", error);
-                }
-            }
-        }, 0);
-        return () => clearTimeout(timer);
-    }, []);
-
-    const handleLogout = () => {
-        localStorage.removeItem("currentUser");
-        localStorage.removeItem("token");
-        window.location.href = "/login";
-    };
-
-    const toggleGroup = (index: number) => {
-        setClickedGroupIndex(prev => (prev === index ? null : index));
-    };
-
-    // Hàm kiểm tra quyền dựa trên role_id
-    const hasPermission = (allowedRoleIds?: number[]) => {
-        if (!allowedRoleIds || allowedRoleIds.length === 0) return true;
-        if (!currentUser?.role_id) return false;
-        return allowedRoleIds.includes(currentUser.role_id);
-    };
-
-    const displayRoleName = mockRoles.find(r => r.id === currentUser?.role_id)?.name || "Người dùng";
+    const { logout } = useAuth(); // Sử dụng hàm logout từ hook
 
     return (
-        <aside className="w-64 bg-museBg text-slate-600 flex flex-col fixed h-full z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)] border-r border-rose-100 font-sans">
-            <div className="h-20 flex flex-col items-center justify-center border-b border-rose-50 relative overflow-hidden flex-shrink-0">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-rose-200/30 rounded-full blur-2xl"></div>
-                <Link href="/admin" className="relative z-10">
-                    <div className="relative h-16 w-32">
-                        <Image src="/img/logo.png" alt="Logo" fill className="object-contain" priority />
-                    </div>
-                </Link>
-            </div>
+        <aside className="flex flex-col w-64 h-screen bg-[#0B0F1A] border-r border-gray-800 sticky top-0 overflow-hidden shrink-0">
+            {/* Brand Header */}
+            <Link href="/admin" className="flex items-center px-6 py-8 group cursor-pointer">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl shadow-lg shadow-blue-900/20 overflow-hidden border border-gray-800 group-hover:border-blue-500 transition-all">
+                    <Image
+                        src="/img/logo.png"
+                        alt="Logo"
+                        width={36}
+                        height={36}
+                        className="object-contain"
+                    />
+                </div>
+                <span className="ml-3 font-bold text-white text-lg tracking-tight group-hover:text-blue-400 transition-colors">
+                    Finance CRM
+                </span>
+            </Link>
 
-            <div className="flex-1 py-6 px-4 overflow-y-auto custom-scrollbar space-y-4">
-                {MENU_GROUPS.map((group, index) => {
-                    // Kiểm tra quyền hiển thị Group
-                    if (!hasPermission(group.roleIds)) return null;
-
-                    // Lọc các Items bên trong mà user có quyền xem
-                    const visibleItems = group.items.filter(item => hasPermission(item.roleIds));
-                    if (visibleItems.length === 0) return null;
-
-                    const isOpen = clickedGroupIndex === index;
+            {/* Menu List */}
+            <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
+                {MENU_ITEMS.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname === item.href || (item.href !== '#' && pathname.startsWith(item.href));
 
                     return (
-                        <div key={index} className="select-none">
-                            <div
-                                onClick={() => toggleGroup(index)}
-                                className={`px-4 mb-2 flex items-center justify-between cursor-pointer group/label hover:bg-rose-50 p-2 rounded-lg transition-all ${isOpen ? "bg-rose-50/80" : ""}`}
-                            >
-                                <div className="flex items-center gap-2 opacity-80 group-hover/label:opacity-100">
-                                    <Sparkles size={10} className="text-rose-400" />
-                                    <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isOpen ? "text-rose-600" : "text-rose-400"}`}>
-                                        {group.groupLabel}
-                                    </p>
-                                </div>
-                                <ChevronRight size={14} className={`text-rose-400 transition-transform duration-300 ${isOpen ? "rotate-90" : ""}`} />
-                            </div>
-
-                            <div className={`space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-[500px] opacity-100 mb-4" : "max-h-0 opacity-0"}`}>
-                                {visibleItems.map((item) => (
-                                    <SidebarItem
-                                        key={item.href}
-                                        icon={item.icon}
-                                        label={item.label}
-                                        href={item.href}
-                                    />
-                                ))}
-                            </div>
-                        </div>
+                        <Link
+                            key={item.id}
+                            href={item.href}
+                            className={`flex items-center px-4 py-3 transition-all duration-200 rounded-xl group
+                                ${isActive
+                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20 font-bold'
+                                    : 'text-gray-400 hover:bg-gray-800/40 hover:text-white'
+                                }`}
+                        >
+                            <Icon size={18} className={`mr-3 flex-shrink-0 ${isActive ? 'text-white' : 'text-gray-500 group-hover:text-white'}`} />
+                            <span className="text-[14px]">{item.label}</span>
+                        </Link>
                     );
                 })}
-            </div>
+            </nav>
 
-            <div className="p-4 bg-gradient-to-t from-rose-50/50 to-transparent mt-auto">
-                <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-rose-100 shadow-sm">
-                    <div className="relative w-10 h-10">
+            {/* Footer User Profile & Logout */}
+            <div className="p-4 border-t border-gray-800/50">
+                <div className="flex items-center p-3 rounded-2xl bg-[#161D2F]/50 border border-gray-800/50 group transition-all">
+                    <div className="relative w-9 h-9 flex-shrink-0">
                         <Image
-                            src={currentUser?.avatar_url || "https://i.pravatar.cc/150?img=11"}
-                            alt="Avatar" fill className="rounded-full object-cover"
+                            src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
+                            alt="Admin Avatar"
+                            fill
+                            sizes="36px"
+                            className="rounded-full object-cover border border-gray-700"
                         />
-                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+                        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-[#0B0F1A] rounded-full"></div>
                     </div>
-                    <div className="flex-1 overflow-hidden">
-                        <p className="text-sm font-bold text-slate-800 truncate">{currentUser?.full_name || "User"}</p>
-                        <p className="text-[10px] text-slate-400 uppercase">{displayRoleName}</p>
+                    <div className="ml-3 min-w-0 flex-1">
+                        <p className="text-[13px] font-bold text-white truncate text-left">{adminName || "Quản trị viên"}</p>
+                        <p className="text-[10px] text-gray-500 truncate text-left">Admin Portal</p>
                     </div>
+
+                    {/* Logout Button */}
+                    <button
+                        onClick={() => {
+                            if (window.confirm("Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?")) {
+                                logout();
+                            }
+                        }}
+                        title="Đăng xuất"
+                        className="ml-2 p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                    >
+                        <LogOut size={16} />
+                    </button>
                 </div>
-                <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg mt-2 transition-colors">
-                    Đăng xuất
-                </button>
             </div>
         </aside>
     );
-};
+}
