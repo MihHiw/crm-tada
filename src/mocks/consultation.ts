@@ -19,7 +19,7 @@ export const mockConsultations: Consultation[] = [
     {
         id: 'cons-02',
         customer_id: 'cust-02',
-        name: 'Hoàng Thị VIP',
+        name: 'Hoàng Thị VIP A',
         phone: '0987654321',
         email: 'vip@gmail.com',
         service: 'Cấy tảo xoắn Nano',

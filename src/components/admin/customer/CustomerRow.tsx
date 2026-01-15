@@ -9,7 +9,7 @@ import React, { memo } from 'react';
 import TierBadge from '../TierBadge';
 
 interface CustomerRowProps {
-    customer: CustomerTableRow; // Sử dụng trực tiếp type từ Hook để đồng bộ dữ liệu
+    customer: CustomerTableRow;
     onRowClick: (id: string | number) => void;
     onFormatCurrency: (val: number) => string;
 }
@@ -17,10 +17,9 @@ interface CustomerRowProps {
 const CustomerRow = memo(({ customer, onRowClick, onFormatCurrency }: CustomerRowProps) => {
 
     const handleActionClick = (e: React.MouseEvent) => {
-        e.stopPropagation(); // Ngăn sự kiện click dòng khi bấm vào nút thao tác
+        e.stopPropagation();
     };
 
-    // Hàm xử lý format ngày tháng an toàn từ start_time của hook
     const formatLastVisit = (dateStr: string) => {
         if (!dateStr) return "Chưa ghé thăm";
         try {
@@ -33,7 +32,8 @@ const CustomerRow = memo(({ customer, onRowClick, onFormatCurrency }: CustomerRo
     return (
         <tr
             onClick={() => onRowClick(customer.id)}
-            className="group hover:bg-slate-50 transition-all duration-200 cursor-pointer border-b border-gray-50 last:border-none"
+            // THAY ĐỔI: hover:bg-white/10 (kính mờ), border-white/5 (viền mờ)
+            className="group hover:bg-white/10 transition-all duration-200 cursor-pointer border-b border-white/5 last:border-none"
         >
             {/* Cột 1: Thông tin khách hàng */}
             <td className="px-6 py-4">
@@ -44,18 +44,19 @@ const CustomerRow = memo(({ customer, onRowClick, onFormatCurrency }: CustomerRo
                             alt={customer.name}
                             fill
                             sizes="40px"
-                            className="rounded-full object-cover border border-gray-100 shadow-sm group-hover:scale-105 transition-transform"
+                            // THAY ĐỔI: border-white/20
+                            className="rounded-full object-cover border border-white/20 shadow-sm group-hover:scale-105 transition-transform"
                         />
-                        {/* Dot hiển thị trạng thái hoạt động */}
-                        <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${customer.status === 'active' ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                        <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#1e293b] ${customer.status === 'active' ? 'bg-emerald-500' : 'bg-gray-400'}`} />
                     </div>
                     <div className="min-w-0 text-left">
-                        <p className="text-sm font-bold text-gray-800 truncate group-hover:text-blue-600 transition-colors">
+                        {/* THAY ĐỔI: text-white */}
+                        <p className="text-sm font-bold text-white truncate group-hover:text-blue-300 transition-colors">
                             {customer.name}
                         </p>
-                        <div className="flex items-center gap-2 text-[11px] text-gray-400 mt-0.5">
+                        <div className="flex items-center gap-2 text-[11px] text-white/60 mt-0.5">
                             <span className="flex items-center gap-1 font-medium">
-                                <Phone size={10} className="text-gray-300" />
+                                <Phone size={10} className="text-white/40" />
                                 {customer.phone}
                             </span>
                         </div>
@@ -71,11 +72,12 @@ const CustomerRow = memo(({ customer, onRowClick, onFormatCurrency }: CustomerRo
             {/* Cột 3: Ví Tiền */}
             <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex flex-col text-left">
-                    <span className="text-sm font-bold text-emerald-600 flex items-center gap-1">
+                    {/* THAY ĐỔI: text-emerald-300 (sáng hơn để nổi trên nền tối) */}
+                    <span className="text-sm font-bold text-emerald-300 flex items-center gap-1">
                         {onFormatCurrency(customer.wallet_balance)}
                     </span>
-                    <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-0.5 font-medium">
-                        <Wallet size={10} className="text-gray-400" />
+                    <div className="flex items-center gap-1 text-[10px] text-white/40 mt-0.5 font-medium">
+                        <Wallet size={10} className="text-white/30" />
                         <span>Sẵn có trong ví</span>
                     </div>
                 </div>
@@ -84,11 +86,12 @@ const CustomerRow = memo(({ customer, onRowClick, onFormatCurrency }: CustomerRo
             {/* Cột 4: Tổng Chi Tiêu */}
             <td className="px-6 py-4 whitespace-nowrap text-left">
                 <div className="flex flex-col">
-                    <span className="text-sm font-black text-slate-700">
+                    {/* THAY ĐỔI: text-white */}
+                    <span className="text-sm font-black text-white">
                         {onFormatCurrency(customer.total_spending)}
                     </span>
-                    <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-0.5 font-medium">
-                        <TrendingUp size={10} className="text-blue-400" />
+                    <div className="flex items-center gap-1 text-[10px] text-white/40 mt-0.5 font-medium">
+                        <TrendingUp size={10} className="text-blue-300" />
                         <span>{customer.visit_count} lần sử dụng dịch vụ</span>
                     </div>
                 </div>
@@ -96,8 +99,9 @@ const CustomerRow = memo(({ customer, onRowClick, onFormatCurrency }: CustomerRo
 
             {/* Cột 5: Lần cuối ghé */}
             <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex items-center gap-1.5 text-slate-500 text-xs font-semibold">
-                    <CalendarClock size={14} className="text-slate-300" />
+                {/* THAY ĐỔI: text-white/70 */}
+                <div className="flex items-center gap-1.5 text-white/70 text-xs font-semibold">
+                    <CalendarClock size={14} className="text-white/30" />
                     <span>{formatLastVisit(customer.last_visit)}</span>
                 </div>
             </td>
@@ -115,7 +119,8 @@ const CustomerRow = memo(({ customer, onRowClick, onFormatCurrency }: CustomerRo
                     </div>
                     <button
                         onClick={handleActionClick}
-                        className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
+                        // THAY ĐỔI: hover:bg-white/10, text-white/40
+                        className="p-2 rounded-xl hover:bg-white/10 text-white/40 hover:text-white transition-colors focus:outline-none"
                     >
                         <MoreVertical size={18} />
                     </button>

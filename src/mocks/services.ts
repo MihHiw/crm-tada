@@ -31,4 +31,6 @@ export const mockServices: Service[] = [
         is_active: true,
         image_url: 'https://placehold.co/600x400?text=Body',
     },
+
+
 ];

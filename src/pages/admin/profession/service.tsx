@@ -1,9 +1,8 @@
-import BottomNav from '@/components/BottomNav';
-import Header from '@/components/Header';
-import InfoRow from '@/components/InfoRow';
+import { Sidebar } from '@/components/admin/Sidebar';
+import GlobalBackground from '@/components/GlobalBackground';
 import { HybridService, useServicePageLogic } from '@/hooks/servicespa/useServicePageLogic';
+import { Calendar, CheckCircle2, ChevronRight, Clock, Sparkles } from 'lucide-react';
 import Head from 'next/head';
-import React from 'react';
 
 // --- Interface chuẩn khớp với cấu trúc dữ liệu thực tế từ Hook ---
 interface BookingData {
@@ -28,7 +27,6 @@ interface BookingData {
         confirmDateTime: () => void;
         confirmBooking: () => void;
         backStep: (target: number) => void;
-        // Đảm bảo ép kiểu hàm này nếu hook trả về từ formState
         setSelectedSessions: (n: number) => void;
     };
 }
@@ -43,211 +41,223 @@ const LoadingSpinner = () => (
 export default function ServicePage() {
     const logic = useServicePageLogic();
 
-    // Ép kiểu an toàn để sử dụng các thuộc tính bên trong 'booking'
+    // Ép kiểu an toàn
     const typed = logic as unknown as BookingData;
-    const { user, logout, booking, handleStepClick } = typed;
+    const { user, booking, handleStepClick } = typed;
 
     if (!user) return null;
 
     const steps = [
-        { id: 1, label: 'Dịch vụ' },
-        { id: 2, label: 'Chọn gói' },
-        { id: 3, label: 'Xác nhận' }
+        { id: 1, label: 'Dịch vụ', icon: Sparkles },
+        { id: 2, label: 'Chọn gói', icon: Calendar },
+        { id: 3, label: 'Xác nhận', icon: CheckCircle2 }
     ];
 
     return (
-        <>
+        // ROOT: Flex row layout, h-screen, text-white cho nền tối
+        <div className="flex h-screen w-full overflow-hidden font-sans text-white">
             <Head><title>Mua gói dịch vụ | Vanilla Spa</title></Head>
 
-            <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
-                <div className="fixed top-0 left-0 right-0 z-50">
-                    <Header user={user} logout={logout} />
-                </div>
+            <GlobalBackground />
 
-                <main className="flex-1 pt-[85px] pb-[100px] px-4 w-full max-w-4xl mx-auto space-y-6">
+            {/* SIDEBAR */}
+            <div className="w-[260px] flex-shrink-0 h-full border-r border-white/10 bg-slate-900/60 backdrop-blur-xl z-20">
+                <Sidebar />
+            </div>
 
-                    {/* THANH TIẾN TRÌNH (STEPPER) */}
-                    <section className="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
-                        <div className="flex items-center justify-between max-w-md mx-auto">
-                            {steps.map((s, index) => {
+            {/* MAIN CONTENT */}
+            <main className="flex-1 flex flex-col min-w-0 h-full relative z-10 scrollbar-hide overflow-y-auto">
+                <div className="w-full max-w-5xl mx-auto p-6 md:p-10 space-y-8">
+
+                    {/* Header đơn giản */}
+                    <div className="mb-8">
+                        <h1 className="text-3xl font-bold text-white tracking-tight">Mua gói dịch vụ</h1>
+                        <p className="text-white/60 text-sm mt-1">Chọn dịch vụ và số lượng buổi bạn muốn mua.</p>
+                    </div>
+
+                    {/* THANH TIẾN TRÌNH (STEPPER) - Glass Style */}
+                    <section className="bg-white/5 backdrop-blur-xl rounded-[2rem] shadow-lg border border-white/10 p-6 relative">
+                        <div className="absolute top-1/2 left-16 right-16 h-[2px] bg-white/10 -z-0 -translate-y-1/2"></div>
+                        <div className="flex items-center justify-between relative z-10 px-4 sm:px-12">
+                            {steps.map((s,) => {
                                 const isActive = booking.step >= s.id;
-                                const isLineActive = booking.step > s.id;
+                                const isCurrent = booking.step === s.id;
+                                const Icon = s.icon;
                                 return (
-                                    <React.Fragment key={s.id}>
-                                        <div
-                                            onClick={() => handleStepClick(s.id)}
-                                            className="relative flex flex-col items-center z-10 cursor-pointer"
-                                        >
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all
-                        ${isActive ? 'bg-primary-500 text-white border-primary-500 shadow-md' : 'bg-white text-gray-300 border-gray-200'}`}>
-                                                {s.id}
-                                            </div>
-                                            <span className={`absolute top-full mt-2 w-24 text-center text-[10px] font-bold uppercase ${isActive ? 'text-primary-600' : 'text-gray-400'}`}>
-                                                {s.label}
-                                            </span>
+                                    <div
+                                        key={s.id}
+                                        onClick={() => handleStepClick(s.id)}
+                                        className={`flex flex-col items-center cursor-pointer group ${booking.step < s.id ? 'pointer-events-none' : ''}`}
+                                    >
+                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300
+                                            ${isActive
+                                                ? 'bg-rose-500 text-white border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.5)]'
+                                                : 'bg-[#1e293b] text-white/30 border-white/10'
+                                            } ${isCurrent ? 'scale-110 ring-4 ring-rose-500/20' : ''}`}>
+                                            <Icon size={18} />
                                         </div>
-                                        {index < steps.length - 1 && (
-                                            <div className={`flex-1 h-1 mx-2 rounded-full ${isLineActive ? 'bg-primary-500' : 'bg-gray-200'}`}></div>
-                                        )}
-                                    </React.Fragment>
+                                        <span className={`mt-3 text-[10px] font-black uppercase tracking-widest transition-colors
+                                            ${isActive ? 'text-white' : 'text-white/30'}`}>
+                                            {s.label}
+                                        </span>
+                                    </div>
                                 );
                             })}
                         </div>
-                        <div className="h-4"></div>
                     </section>
 
-                    {/* --- BƯỚC 1: CHỌN DỊCH VỤ --- */}
+                    {/* STEP 1: CHỌN DỊCH VỤ */}
                     {booking.step === 1 && (
-                        <div className="space-y-4 animate-fadeIn">
-                            <h2 className="text-xl font-bold text-gray-800">1. Chọn loại dịch vụ</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 {booking.services.map((service) => (
                                     <div
-                                        key={service._id}
-                                        onClick={() => {
-                                            booking.selectService(service);
-                                            // Logic tự động nhảy bước 2 thường được xử lý trong hook selectService
-                                        }}
-                                        className={`cursor-pointer rounded-xl border p-5 bg-white transition-all hover:shadow-md ${booking.selectedService?._id === service._id ? 'border-primary-500 ring-2 ring-primary-500/20 shadow-sm' : 'border-gray-200'
-                                            }`}
+                                        key={service.id}
+                                        onClick={() => booking.selectService(service)}
+                                        className={`group relative bg-white/5 backdrop-blur-md rounded-[2rem] p-6 border transition-all duration-300 cursor-pointer overflow-hidden
+                                            ${booking.selectedService?.id === service.id
+                                                ? 'border-rose-500 bg-rose-500/10 shadow-[0_0_30px_rgba(244,63,94,0.15)]'
+                                                : 'border-white/10 hover:border-white/30 hover:bg-white/10'
+                                            }
+                                        `}
                                     >
-                                        <h3 className="font-bold text-gray-900 text-lg">{service.name}</h3>
-                                        <p className="text-primary-600 font-bold mt-2">{service.price.toLocaleString()}đ / buổi</p>
-                                        <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wide">{service.duration_min} phút thực hiện</p>
+                                        <div className="flex justify-between items-start">
+                                            <div className="space-y-2">
+                                                <h3 className={`text-lg font-bold transition-colors ${booking.selectedService?.id === service.id ? 'text-rose-400' : 'text-white group-hover:text-rose-300'}`}>
+                                                    {service.name}
+                                                </h3>
+                                                <p className="text-xl font-bold text-white tracking-tight">
+                                                    {service.price.toLocaleString()}đ
+                                                    <span className="text-sm font-normal text-white/50 ml-1">/ buổi</span>
+                                                </p>
+                                                <div className="flex items-center gap-2 text-white/50 text-xs font-bold uppercase tracking-wide">
+                                                    <Clock size={14} className="text-rose-400" />
+                                                    {service.duration_min} phút thực hiện
+                                                </div>
+                                            </div>
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all transform 
+                                                ${booking.selectedService?.id === service.id
+                                                    ? 'bg-rose-500 text-white rotate-[-45deg] shadow-lg'
+                                                    : 'bg-white/10 text-white/40 group-hover:bg-rose-500 group-hover:text-white group-hover:rotate-[-45deg]'
+                                                }
+                                            `}>
+                                                <ChevronRight size={20} />
+                                            </div>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     )}
 
-                    {/* --- BƯỚC 2: CHỌN SỐ LƯỢNG (SỬA LỖI NaN & FUNCTION NOT FOUND) --- */}
+                    {/* STEP 2: CHỌN GÓI (SỐ LƯỢNG) */}
                     {booking.step === 2 && booking.selectedService && (
-                        <div className="animate-fadeIn space-y-6 bg-white p-8 rounded-2xl border shadow-sm flex flex-col items-center">
-                            <div className="text-center">
-                                <h2 className="text-xl font-bold text-gray-800 mb-1">Thiết lập gói mua</h2>
-                                <p className="text-primary-600 font-medium italic">{booking.selectedService.name}</p>
-                            </div>
-
-                            <div className="flex items-center gap-10 py-10">
-                                <button
-                                    onClick={() => {
-                                        // Đảm bảo số lượng tối thiểu là 1
-                                        const current = booking.selectedSessions || 1;
-                                        if (current > 1) {
-                                            booking.setSelectedSessions(current - 1);
-                                        }
-                                    }}
-                                    className="w-14 h-14 rounded-full border-2 border-primary-500 text-primary-500 flex items-center justify-center text-3xl font-bold hover:bg-primary-50 transition-colors active:scale-90"
-                                >
-                                    −
-                                </button>
-
-                                <div className="text-center min-w-[100px]">
-                                    <span className="text-6xl font-black text-gray-800">{booking.selectedSessions || 1}</span>
-                                    <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mt-2">Buổi điều trị</p>
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto">
+                            <div className="bg-white/5 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/10 shadow-2xl flex flex-col items-center">
+                                <div className="text-center mb-8">
+                                    <h2 className="text-xl font-bold text-white mb-2">Thiết lập gói mua</h2>
+                                    <p className="text-rose-400 font-bold text-lg">{booking.selectedService.name}</p>
                                 </div>
 
-                                <button
-                                    onClick={() => {
-                                        // Tăng số lượng lên bắt đầu từ giá trị hiện tại (hoặc 1)
-                                        const current = booking.selectedSessions || 1;
-                                        booking.setSelectedSessions(current + 1);
-                                    }}
-                                    className="w-14 h-14 rounded-full bg-primary-500 text-white flex items-center justify-center text-3xl font-bold shadow-lg hover:bg-primary-600 transition-all active:scale-90"
-                                >
-                                    +
-                                </button>
-                            </div>
+                                <div className="flex items-center gap-8 mb-8">
+                                    <button
+                                        onClick={() => {
+                                            const current = booking.selectedSessions || 1;
+                                            if (current > 1) booking.setSelectedSessions(current - 1);
+                                        }}
+                                        className="w-14 h-14 rounded-2xl border border-white/20 text-white hover:bg-white/10 flex items-center justify-center text-2xl transition-all active:scale-95"
+                                    >
+                                        −
+                                    </button>
 
-                            <div className="w-full max-w-sm bg-gray-50 rounded-xl p-5 border border-dashed border-gray-300">
-                                <div className="flex justify-between items-center text-sm mb-1">
-                                    <span className="text-gray-500">Đơn giá:</span>
-                                    <span className="font-semibold text-gray-700">{booking.selectedService.price.toLocaleString()}đ</span>
-                                </div>
-                                <div className="flex justify-between items-center text-lg font-bold text-primary-600">
-                                    <span>Thành tiền:</span>
-                                    {/* SỬA LỖI NaN: Sử dụng totalAmount tính toán sẵn từ Hook */}
-                                    <span>{booking.totalAmount.toLocaleString()}đ</span>
-                                </div>
-                            </div>
+                                    <div className="text-center min-w-[100px]">
+                                        <span className="text-6xl font-black text-white">{booking.selectedSessions || 1}</span>
+                                        <p className="text-white/40 font-bold uppercase text-[10px] tracking-widest mt-2">Buổi điều trị</p>
+                                    </div>
 
-                            <div className="flex gap-4 w-full pt-4">
-                                <button onClick={() => handleStepClick(1)} className="flex-1 py-4 border border-gray-200 rounded-xl font-bold text-gray-500 hover:bg-gray-50 transition-colors">
-                                    Quay lại
-                                </button>
-                                <button
-                                    onClick={() => booking.confirmDateTime()} // Hook sẽ tự nhảy step sang 3
-                                    className="flex-[2] bg-primary-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-primary-700 transition-all active:scale-95"
-                                >
-                                    Xác nhận gói mua
-                                </button>
+                                    <button
+                                        onClick={() => {
+                                            const current = booking.selectedSessions || 1;
+                                            booking.setSelectedSessions(current + 1);
+                                        }}
+                                        className="w-14 h-14 rounded-2xl bg-rose-500 text-white flex items-center justify-center text-2xl shadow-lg shadow-rose-500/30 hover:bg-rose-600 transition-all active:scale-95"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+
+                                <div className="w-full bg-black/20 rounded-2xl p-5 border border-white/5 mb-8">
+                                    <div className="flex justify-between items-center text-sm mb-2">
+                                        <span className="text-white/60">Đơn giá:</span>
+                                        <span className="font-bold text-white">{booking.selectedService.price.toLocaleString()}đ</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-lg font-bold text-rose-400 border-t border-white/10 pt-2 mt-2">
+                                        <span>Thành tiền:</span>
+                                        <span className="text-2xl">{booking.totalAmount.toLocaleString()}đ</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4 w-full">
+                                    <button onClick={() => booking.backStep(1)} className="flex-1 py-4 rounded-xl border border-white/10 text-white/60 font-bold hover:bg-white/5 hover:text-white transition-all uppercase text-xs tracking-widest">
+                                        Quay lại
+                                    </button>
+                                    <button
+                                        onClick={() => booking.confirmDateTime()} // Hook tự nhảy step 3
+                                        className="flex-[2] bg-rose-500 text-white py-4 rounded-xl font-bold shadow-lg shadow-rose-500/30 hover:bg-rose-600 transition-all active:scale-95 uppercase text-xs tracking-widest"
+                                    >
+                                        Xác nhận gói
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
 
-                    {/* --- BƯỚC 3: XÁC NHẬN THANH TOÁN --- */}
+                    {/* STEP 3: XÁC NHẬN THANH TOÁN */}
                     {booking.step === 3 && booking.selectedService && (
-                        <div className="animate-fadeIn space-y-4">
-                            <div className="bg-white p-6 rounded-xl border shadow-sm space-y-4">
-                                <h2 className="font-bold text-lg border-b pb-3 text-gray-800 uppercase tracking-tight">Chi tiết thanh toán</h2>
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto">
+                            <div className="bg-white/5 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/10 shadow-2xl space-y-6">
+                                <h2 className="font-bold text-xl text-white uppercase tracking-tight text-center border-b border-white/10 pb-4">Chi tiết thanh toán</h2>
 
-                                <div className="bg-gray-50 p-5 rounded-2xl space-y-4">
-                                    <InfoRow label="Dịch vụ" value={booking.selectedService.name} />
-                                    <InfoRow label="Số lượng mua" value={`${booking.selectedSessions || 1} buổi`} />
-                                    <InfoRow label="Thời hạn gói" value="Không giới hạn thời gian" />
-                                </div>
-
-                                <div className="border-t border-double border-gray-200 pt-4">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <span className="font-bold text-gray-600">Tổng thanh toán</span>
-                                        <span className="text-3xl font-black text-primary-600">{booking.totalAmount?.toLocaleString() ?? "0"}đ</span>
+                                <div className="bg-black/20 p-6 rounded-2xl space-y-4 border border-white/5">
+                                    <div className="flex justify-between border-b border-white/5 pb-2">
+                                        <span className="text-white/60 text-sm">Dịch vụ</span>
+                                        <span className="text-white font-bold text-right max-w-[200px]">{booking.selectedService.name}</span>
                                     </div>
-                                    <p className="text-right text-xs text-gray-400 italic">Số dư ví khả dụng: {user?.balance?.toLocaleString() ?? "0"}đ</p>
+                                    <div className="flex justify-between border-b border-white/5 pb-2">
+                                        <span className="text-white/60 text-sm">Số lượng</span>
+                                        <span className="text-white font-bold">{booking.selectedSessions || 1} buổi</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pt-2">
+                                        <span className="text-white/60 text-sm">Tổng thanh toán</span>
+                                        <span className="text-3xl font-black text-rose-400">{booking.totalAmount?.toLocaleString() ?? "0"}đ</span>
+                                    </div>
+                                    <p className="text-right text-xs text-white/40 italic">Số dư ví khả dụng: <span className="text-emerald-400 font-bold">{user.balance?.toLocaleString() ?? "0"}đ</span></p>
                                 </div>
 
                                 {!booking.hasEnoughBalance && (
-                                    <div className="p-4 bg-red-50 text-red-600 text-xs rounded-xl font-bold border border-red-100 flex items-center gap-3 animate-pulse">
+                                    <div className="p-4 bg-red-500/10 text-red-400 text-xs rounded-xl font-bold border border-red-500/20 flex items-center gap-3">
                                         <svg fill="currentColor" viewBox="0 0 20 20" className="w-5 h-5"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"></path></svg>
                                         Số dư ví không đủ. Vui lòng nạp thêm để mua gói.
                                     </div>
                                 )}
 
-                                <div className="pt-4 space-y-3">
+                                <div className="flex gap-4 pt-2">
+                                    <button onClick={() => handleStepClick(2)} className="flex-1 py-4 border border-white/10 rounded-xl font-bold text-white/60 hover:bg-white/5 hover:text-white transition-all uppercase text-xs tracking-widest">
+                                        Thay đổi
+                                    </button>
                                     <button
                                         onClick={booking.confirmBooking}
                                         disabled={booking.creating || !booking.hasEnoughBalance}
-                                        className="w-full bg-primary-600 text-white py-5 rounded-2xl font-bold shadow-xl hover:bg-primary-700 disabled:bg-gray-300 disabled:shadow-none transition-all active:scale-95 flex justify-center items-center"
+                                        className="flex-[2] bg-rose-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-rose-600/30 hover:bg-rose-500 disabled:bg-white/10 disabled:text-white/20 disabled:shadow-none transition-all active:scale-95 flex justify-center items-center gap-2 uppercase text-xs tracking-widest"
                                     >
-                                        {booking.creating ? <><LoadingSpinner /> Đang thực hiện giao dịch...</> : 'Thanh toán & Nhận gói'}
-                                    </button>
-
-                                    <button
-                                        onClick={() => handleStepClick(2)}
-                                        disabled={booking.creating}
-                                        className="w-full py-2 text-sm text-gray-400 font-medium hover:text-primary-500 transition-colors"
-                                    >
-                                        Thay đổi số lượng buổi
+                                        {booking.creating ? <><LoadingSpinner /> Đang xử lý...</> : 'Thanh toán ngay'}
                                     </button>
                                 </div>
                             </div>
                         </div>
                     )}
-                </main>
-
-                <div className="fixed bottom-0 left-0 right-0 z-50">
-                    <BottomNav />
                 </div>
-            </div>
-
-            <style jsx global>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.4s ease-out forwards;
-        }
-      `}</style>
-        </>
+            </main>
+        </div>
     );
 }

@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-// Giả sử bạn lưu file chứa mockPromotions, mockReferrals... tại @/mocks
 import { mockPromotions } from '@/mocks'; 
 
-// 1. INTERFACE: Dữ liệu từ Database (Khớp với mockPromotions bạn cung cấp)
 interface DBPromotion {
   id: string;
   code: string;

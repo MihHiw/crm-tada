@@ -19,36 +19,42 @@ const StatCard: React.FC<StatCardProps> = ({
     subtext
 }) => {
 
-    // Map màu sắc với các class Tailwind
+    // UPDATE: Chuyển sang bảng màu Neon/Pastel trên nền trong suốt (bg-opacity/20)
+    // để nổi bật trên nền tối (Dark Mode)
     const colorClasses: Record<StatCardColor, string> = {
-        rose: "bg-rose-50 text-rose-500",
-        yellow: "bg-yellow-50 text-yellow-600",
-        green: "bg-green-50 text-green-600",
-        blue: "bg-blue-50 text-blue-600",     // Đã sửa lại text thành blue
-        purple: "bg-purple-50 text-purple-600",
-        indigo: "bg-indigo-50 text-indigo-600",
-        orange: "bg-orange-50 text-orange-600",
+        rose: "bg-rose-500/20 text-rose-300",
+        yellow: "bg-amber-500/20 text-amber-300", // Dùng amber nhìn rõ hơn yellow trên nền tối
+        green: "bg-emerald-500/20 text-emerald-300",
+        blue: "bg-blue-500/20 text-blue-300",
+        purple: "bg-purple-500/20 text-purple-300",
+        indigo: "bg-indigo-500/20 text-indigo-300",
+        orange: "bg-orange-500/20 text-orange-300",
     };
 
     return (
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 w-full transition-all hover:shadow-md">
+        // UPDATE: Container dùng bg-white/5 (kính mờ), border-white/10
+        <div className="bg-white/5 backdrop-blur-xl p-6 rounded-[24px] border border-white/10 shadow-lg flex items-center gap-4 w-full transition-all hover:bg-white/10 hover:scale-[1.02]">
+
             {/* Icon Box */}
-            <div className={`p-4 rounded-xl flex items-center justify-center ${colorClasses[color]}`}>
+            <div className={`p-4 rounded-2xl flex items-center justify-center shadow-inner ${colorClasses[color]}`}>
                 {icon}
             </div>
 
             {/* Content */}
-            <div>
-                <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">
+            <div className="min-w-0">
+                {/* Label: text-white/60 */}
+                <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest truncate">
                     {label}
                 </p>
-                <p className="text-2xl font-bold text-gray-800 mt-1">
+
+                {/* Value: text-white */}
+                <p className="text-2xl font-bold text-white mt-1 tracking-tight truncate">
                     {value}
                 </p>
 
-                {/* Chỉ hiển thị nếu có subtext */}
+                {/* Subtext: text-white/50 */}
                 {subtext && (
-                    <p className="text-xs text-gray-400 mt-1 font-medium">
+                    <p className="text-xs text-white/50 mt-1 font-medium truncate">
                         {subtext}
                     </p>
                 )}

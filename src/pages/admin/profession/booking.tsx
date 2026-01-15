@@ -1,32 +1,13 @@
-import Header from '@/components/Header';
+import { Sidebar } from '@/components/admin/Sidebar';
+import GlobalBackground from '@/components/GlobalBackground';
 import { useServicePageLogic } from '@/hooks/servicespa/useServicePageLogic';
 import { Calendar, CheckCircle2, ChevronRight, Clock, Sparkles } from 'lucide-react';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
 
 export default function BookingPage() {
-  const [showHeader, setShowHeader] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (typeof window !== 'undefined') {
-        const currentScrollY = window.scrollY;
-        if (currentScrollY > lastScrollY && currentScrollY > 50) {
-          setShowHeader(false);
-        } else {
-          setShowHeader(true);
-        }
-        setLastScrollY(currentScrollY);
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
-
   const {
     user,
-    logout,
     booking,
     handleStepClick,
     isReady
@@ -39,261 +20,296 @@ export default function BookingPage() {
     selectedService,
     selectedDate,
     selectedTime,
-    hasEnoughBalance,
     setSelectedDate,
     setSelectedTime,
     selectService,
-    confirmDateTime,  // Hàm này đã có trong hook
+    confirmDateTime,
     confirmBooking,
     backStep,
     generateTimeSlots,
     creating,
   } = booking;
 
+  // --- HÀM XỬ LÝ SỰ KIỆN XÁC NHẬN ---
+  const handleConfirmBooking = async () => {
+    try {
+      await confirmBooking();
+
+      await Swal.fire({
+        icon: 'success',
+        title: '<span class="text-emerald-400 font-bold">Đặt lịch thành công!</span>',
+        html: '<p class="text-white/80">Cảm ơn bạn đã tin tưởng dịch vụ của Vanilla Spa.<br/>Chúng tôi đang chờ đón bạn.</p>',
+        background: 'rgba(30, 41, 59, 0.9)',
+        color: '#fff',
+        confirmButtonText: 'Tuyệt vời',
+        confirmButtonColor: '#10b981',
+        backdrop: `rgba(0,0,0,0.6)`,
+        customClass: {
+          popup: 'border border-white/10 rounded-[2rem] backdrop-blur-xl shadow-2xl',
+          confirmButton: 'rounded-xl px-6 py-3 font-bold uppercase tracking-wider shadow-lg shadow-emerald-500/30'
+        }
+      });
+
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Có lỗi xảy ra',
+        text: 'Vui lòng thử lại sau!',
+        background: '#1e293b',
+        color: '#fff',
+        confirmButtonColor: '#ef4444',
+        customClass: {
+          popup: 'border border-white/10 rounded-[2rem]',
+        }
+      });
+    }
+  };
+
   if (!isReady && isLoading) return (
-    <div className="flex h-screen items-center justify-center bg-rose-50">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500"></div>
+    <div className="flex h-screen items-center justify-center bg-slate-900">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
     </div>
   );
 
   if (!user) return null;
 
   return (
-    <>
+    <div className="flex h-screen w-full overflow-hidden font-sans text-white">
+
+      <GlobalBackground />
+
       <Head>
         <title>Đặt lịch Spa & Beauty</title>
       </Head>
 
-      <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${showHeader ? 'translate-y-0' : '-translate-y-full'}`}>
-        <div className="bg-white/80 backdrop-blur-md border-b border-rose-100 shadow-sm">
-          <Header user={user} logout={logout} />
-        </div>
+      {/* Sidebar */}
+      <div className="w-[260px] flex-shrink-0 h-full border-r border-white/10 bg-slate-900/60 backdrop-blur-xl z-50">
+        <Sidebar />
       </div>
 
-      <main className="flex-1 pt-[100px] pb-[100px] w-full min-h-screen bg-gradient-to-br from-rose-50 via-white to-rose-50 font-sans">
-        {/* Background blobs */}
-        <div className="fixed top-20 left-0 w-64 h-64 bg-rose-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="fixed top-40 right-0 w-64 h-64 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0 h-full relative z-10 scrollbar-hide overflow-y-auto">
 
-        {/* --- STEPPER --- */}
-        <div className="sticky top-[80px] z-40 mb-10">
-          <div className="w-full max-w-2xl mx-auto px-4">
-            <div className="bg-white rounded-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] py-5 px-4 sm:px-12 relative border border-gray-100">
-              <div className="absolute top-[38%] left-12 right-12 h-[2px] bg-gray-100 -z-0"></div>
-              <div className="flex justify-between items-start relative z-10">
-                {[
-                  { id: 1, label: 'DỊCH VỤ', icon: Sparkles },
-                  { id: 2, label: 'THỜI GIAN', icon: Calendar },
-                  { id: 3, label: 'XÁC NHẬN', icon: CheckCircle2 },
-                ].map((s) => {
-                  const isActive = step === s.id;
-                  const isCompleted = step > s.id;
-                  const Icon = s.icon;
+        <main className="flex-1 px-8 pb-[100px] w-full pt-8">
 
-                  return (
-                    <div
-                      key={s.id}
-                      onClick={() => handleStepClick(s.id)}
-                      className={`flex flex-col items-center group cursor-pointer ${step < s.id ? 'pointer-events-none opacity-50' : ''}`}
-                    >
-                      <div className={`
-                        relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ease-out
-                        ${isActive
-                          ? 'bg-rose-500 text-white shadow-lg shadow-rose-200 ring-[6px] ring-rose-100 scale-110'
-                          : isCompleted
-                            ? 'bg-rose-100 text-rose-500 ring-[6px] ring-gray-50'
-                            : 'bg-white text-gray-300 border-2 border-gray-100'
-                        }
-                      `}>
-                        <Icon size={isActive ? 20 : 18} strokeWidth={isActive ? 2.5 : 2} />
+          {/* STEPPER */}
+          <div className="sticky top-4 z-30 mb-10">
+            <div className="w-full max-w-3xl mx-auto">
+              <div className="bg-white/10 backdrop-blur-xl rounded-full shadow-2xl border border-white/20 py-4 px-8 relative">
+                <div className="absolute top-1/2 left-12 right-12 h-[2px] bg-white/10 -z-0 -translate-y-1/2"></div>
+
+                <div className="flex justify-between items-center relative z-10">
+                  {[
+                    { id: 1, label: 'DỊCH VỤ', icon: Sparkles },
+                    { id: 2, label: 'THỜI GIAN', icon: Calendar },
+                    { id: 3, label: 'XÁC NHẬN', icon: CheckCircle2 },
+                  ].map((s) => {
+                    const isActive = step === s.id;
+                    const isCompleted = step > s.id;
+                    const Icon = s.icon;
+
+                    return (
+                      <div
+                        key={s.id}
+                        onClick={() => handleStepClick(s.id)}
+                        className={`flex flex-col items-center group cursor-pointer transition-all ${step < s.id ? 'pointer-events-none opacity-50' : ''}`}
+                      >
+                        <div className={`
+                          relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
+                          ${isActive
+                            ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.5)] scale-110 border-4 border-[#1e293b]'
+                            : isCompleted
+                              ? 'bg-emerald-500/20 text-emerald-400 border-2 border-emerald-500/50'
+                              : 'bg-white/10 text-white/40 border-2 border-white/10 hover:border-white/30 hover:text-white'
+                          }
+                        `}>
+                          <Icon size={isActive ? 20 : 18} strokeWidth={isActive ? 2.5 : 2} />
+                        </div>
+                        <span className={`
+                          text-[10px] font-black tracking-widest mt-2 uppercase transition-colors duration-300
+                          ${isActive ? 'text-emerald-400' : 'text-white/40'}
+                        `}>
+                          {s.label}
+                        </span>
                       </div>
-                      <span className={`
-                        text-[11px] font-bold tracking-widest mt-3 uppercase transition-colors duration-300
-                        ${isActive ? 'text-rose-600' : 'text-gray-400'}
-                      `}>
-                        {s.label}
-                      </span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="w-full max-w-4xl mx-auto px-4 relative z-10">
-          {/* STEP 1: CHỌN DỊCH VỤ */}
-          {step === 1 && (
-            <div className="animate-fade-in-up space-y-6">
-              <div className="text-center space-y-2 mb-8">
-                <h2 className="text-3xl font-bold text-gray-800 font-serif">Trải nghiệm dịch vụ</h2>
-                <p className="text-gray-500">Hãy chọn liệu trình thư giãn phù hợp nhất với bạn</p>
-              </div>
+          <div className="w-full max-w-5xl mx-auto">
 
-              {isLoading ? (
-                <div className="flex justify-center py-20">
-                  <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-rose-500"></div>
+            {/* STEP 1: CHỌN DỊCH VỤ */}
+            {step === 1 && (
+              <div className="animate-fade-in-up space-y-8">
+                <div className="text-center space-y-2 mb-8">
+                  <h2 className="text-3xl font-black text-white uppercase tracking-tight">Trải nghiệm dịch vụ</h2>
+                  <p className="text-white/60 font-medium">Hãy chọn liệu trình thư giãn phù hợp nhất với bạn</p>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {services.map((srv, index) => (
-                    <div
-                      key={index}
-                      // Truyền trực tiếp, không cần as any vì srv là HybridService
-                      onClick={() => selectService(srv)}
-                      className={`group relative bg-white rounded-3xl p-6 border transition-all duration-300 cursor-pointer overflow-hidden
-                        ${selectedService?.id === srv.id
-                          ? 'border-rose-500 shadow-xl shadow-rose-100/50 ring-2 ring-rose-100'
-                          : 'border-transparent shadow-sm hover:shadow-xl hover:shadow-rose-100/50 hover:border-rose-100'}
-                      `}
-                    >
-                      <div className={`absolute top-0 left-0 w-1 h-full transition-opacity ${selectedService?.id === srv.id ? 'bg-rose-500 opacity-100' : 'bg-rose-500 opacity-0 group-hover:opacity-100'}`}></div>
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-2">
-                          <h3 className="text-lg font-bold text-gray-800 group-hover:text-rose-600 transition-colors">
-                            {srv.name}
-                          </h3>
-                          <div className="flex items-center gap-3 text-sm text-gray-500">
-                            <span className="flex items-center gap-1 bg-rose-50 text-rose-600 px-2 py-1 rounded-lg">
-                              <Clock size={14} />
-                              {/* Dùng duration_min chuẩn từ HybridService */}
-                              {srv.duration_min} phút
-                            </span>
+
+                {isLoading ? (
+                  <div className="flex justify-center py-20">
+                    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-emerald-500"></div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {services.map((srv, index) => (
+                      <div
+                        key={index}
+                        onClick={() => selectService(srv)}
+                        className={`group relative bg-white/5 backdrop-blur-md rounded-[2rem] p-6 border transition-all duration-300 cursor-pointer overflow-hidden
+                          ${selectedService?.id === srv.id
+                            ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_30px_rgba(16,185,129,0.15)]'
+                            : 'border-white/10 hover:border-white/30 hover:bg-white/10'}
+                        `}
+                      >
+                        <div className="flex justify-between items-start relative z-10">
+                          <div className="space-y-3">
+                            <h3 className={`text-lg font-bold transition-colors ${selectedService?.id === srv.id ? 'text-emerald-400' : 'text-white group-hover:text-emerald-300'}`}>
+                              {srv.name}
+                            </h3>
+                            <div className="flex items-center gap-3 text-sm">
+                              <span className="flex items-center gap-1.5 bg-white/10 text-white/80 px-3 py-1.5 rounded-xl border border-white/5 backdrop-blur-sm">
+                                <Clock size={14} className="text-emerald-400" />
+                                <span className="font-bold text-xs uppercase tracking-wide">{srv.duration_min} phút</span>
+                              </span>
+                            </div>
+                          </div>
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all transform 
+                              ${selectedService?.id === srv.id
+                              ? 'bg-emerald-500 text-white rotate-[-45deg] shadow-lg'
+                              : 'bg-white/10 text-white/40 group-hover:bg-emerald-500 group-hover:text-white group-hover:rotate-[-45deg]'}
+                          `}>
+                            <ChevronRight size={20} />
                           </div>
                         </div>
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all transform 
-                            ${selectedService?.id === srv.id
-                            ? 'bg-rose-500 text-white rotate-[-45deg]'
-                            : 'bg-gray-50 text-gray-400 group-hover:bg-rose-500 group-hover:text-white group-hover:rotate-[-45deg]'}
-                        `}>
-                          <ChevronRight size={20} />
-                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* STEP 2: CHỌN THỜI GIAN */}
-          {step === 2 && (
-            <div className="animate-fade-in-up max-w-2xl mx-auto">
-              <div className="bg-white/80 backdrop-blur-sm p-8 rounded-[32px] shadow-xl shadow-rose-100/40 border border-white">
-                <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center font-serif">Chọn lịch hẹn</h2>
-                <div className="mb-8">
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Ngày mong muốn</label>
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-rose-400">
-                      <Calendar size={20} />
-                    </div>
-                    <input
-                      type="date"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full pl-12 pr-4 py-4 bg-rose-50/50 border border-rose-100 rounded-2xl text-gray-800 font-medium focus:ring-2 focus:ring-rose-200 focus:bg-white transition-all outline-none cursor-pointer"
-                    />
-                  </div>
-                </div>
-
-                {selectedDate && (
-                  <div className="animate-fade-in">
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Khung giờ trống</label>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                      {generateTimeSlots().map((time) => (
-                        <button
-                          key={time}
-                          onClick={() => setSelectedTime(time)}
-                          className={`
-                            py-3 px-2 rounded-xl text-sm font-semibold transition-all duration-300 relative overflow-hidden
-                            ${selectedTime === time
-                              ? 'bg-rose-500 text-white shadow-lg shadow-rose-300 transform -translate-y-1'
-                              : 'bg-white border border-gray-100 text-gray-600 hover:border-rose-300 hover:text-rose-500 hover:shadow-md'
-                            }
-                          `}
-                        >
-                          {time}
-                        </button>
-                      ))}
-                    </div>
+                    ))}
                   </div>
                 )}
-
-                <div className="flex gap-4 mt-10 pt-6 border-t border-dashed border-gray-200">
-                  <button
-                    onClick={() => backStep(1)}
-                    className="px-6 py-3 rounded-2xl text-gray-500 font-bold hover:bg-gray-50 transition-all"
-                  >
-                    Quay lại
-                  </button>
-                  <button
-                    onClick={confirmDateTime}
-                    disabled={!selectedDate || !selectedTime}
-                    className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 disabled:opacity-50 transition-all"
-                  >
-                    Tiếp tục
-                  </button>
-                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* STEP 3: XÁC NHẬN */}
-          {step === 3 && selectedService && (
-            <div className="animate-fade-in-up max-w-lg mx-auto">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800 font-serif">Xác nhận đặt lịch</h2>
-              </div>
+            {/* STEP 2: CHỌN THỜI GIAN */}
+            {step === 2 && (
+              <div className="animate-fade-in-up max-w-2xl mx-auto">
+                <div className="bg-white/5 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-2xl border border-white/10">
+                  <h2 className="text-2xl font-black text-white mb-8 text-center uppercase tracking-tight">Chọn lịch hẹn</h2>
 
-              <div className="bg-white rounded-[24px] overflow-hidden shadow-2xl shadow-rose-100 border border-white relative">
-                <div className="bg-gradient-to-br from-rose-500 to-pink-600 p-8 text-white">
-                  <p className="opacity-80 text-sm uppercase tracking-wider mb-1">Dịch vụ đã chọn</p>
-                  <h3 className="text-2xl font-bold leading-tight">{selectedService.name}</h3>
-                  <div className="flex items-center gap-2 mt-3 opacity-90">
-                    <Clock size={16} />
-                    {/* Dùng duration_min chuẩn */}
-                    <span>{selectedService.duration_min} phút thư giãn</span>
-                  </div>
-                </div>
-
-                <div className="p-8 bg-white">
-                  <div className="flex justify-between items-center mb-8 pb-8 border-b-2 border-dashed border-gray-100">
-                    <div>
-                      <p className="text-gray-400 text-xs uppercase font-bold">Thời gian</p>
-                      <p className="text-xl font-bold text-gray-800">{selectedTime}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-gray-400 text-xs uppercase font-bold">Ngày hẹn</p>
-                      <p className="text-gray-800 font-medium">{selectedDate}</p>
+                  <div className="mb-8">
+                    <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Ngày mong muốn</label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-emerald-400">
+                        <Calendar size={20} />
+                      </div>
+                      <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="w-full pl-14 pr-6 py-4 bg-black/30 border border-white/10 rounded-2xl text-white font-bold focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all outline-none cursor-pointer"
+                      />
                     </div>
                   </div>
 
+                  {selectedDate && (
+                    <div className="animate-fade-in">
+                      <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Khung giờ trống</label>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                        {generateTimeSlots().map((time) => (
+                          <button
+                            key={time}
+                            onClick={() => setSelectedTime(time)}
+                            className={`
+                              py-3 px-2 rounded-xl text-xs font-bold transition-all duration-300 relative overflow-hidden
+                              ${selectedTime === time
+                                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 transform -translate-y-1'
+                                : 'bg-white/5 border border-white/10 text-white/70 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-white/10'
+                              }
+                            `}
+                          >
+                            {time}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-
-
-
-                  <div className="flex gap-3 mt-4">
+                  <div className="flex gap-4 mt-10 pt-6 border-t border-white/10">
                     <button
-                      onClick={() => backStep(2)}
-                      className="px-6 py-3 rounded-xl border border-gray-200 text-gray-500 font-bold hover:bg-gray-50 transition-all"
+                      onClick={() => backStep(1)}
+                      className="px-8 py-3 rounded-xl border border-white/10 text-white/60 font-bold hover:bg-white/5 hover:text-white transition-all text-xs uppercase tracking-widest"
                     >
                       Quay lại
                     </button>
                     <button
-                      onClick={confirmBooking}
-                      disabled={!hasEnoughBalance || creating}
-                      className="flex-1 py-3 rounded-xl bg-gradient-to-r from-gray-900 to-gray-800 text-white font-bold shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                      onClick={confirmDateTime}
+                      disabled={!selectedDate || !selectedTime}
+                      className="flex-1 py-4 rounded-xl bg-emerald-500 text-white font-black text-xs uppercase tracking-[0.15em] shadow-lg shadow-emerald-500/30 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
-                      {creating ? 'Đang xử lý...' : 'Xác nhận đặt lịch'}
+                      Tiếp tục
                     </button>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      </main>
-    </>
+            )}
+
+            {/* STEP 3: XÁC NHẬN */}
+            {step === 3 && selectedService && (
+              <div className="animate-fade-in-up max-w-lg mx-auto">
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-black text-white uppercase tracking-tight">Xác nhận đặt lịch</h2>
+                </div>
+
+                <div className="bg-[#1e293b] rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 relative">
+                  <div className="bg-gradient-to-br from-emerald-600 to-teal-700 p-10 text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                    <p className="opacity-70 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Dịch vụ đã chọn</p>
+                    <h3 className="text-2xl font-black leading-tight tracking-tight">{selectedService.name}</h3>
+                    <div className="flex items-center gap-2 mt-4 opacity-90 bg-black/20 w-fit px-3 py-1.5 rounded-lg backdrop-blur-sm">
+                      <Clock size={14} />
+                      <span className="text-xs font-bold uppercase tracking-wide">{selectedService.duration_min} phút thư giãn</span>
+                    </div>
+                  </div>
+
+                  <div className="p-8 bg-white/5 backdrop-blur-xl">
+                    <div className="flex justify-between items-center mb-8 pb-8 border-b border-dashed border-white/10">
+                      <div>
+                        <p className="text-white/40 text-[10px] uppercase font-black tracking-widest mb-1">Thời gian</p>
+                        <p className="text-2xl font-black text-white tracking-tight">{selectedTime}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-white/40 text-[10px] uppercase font-black tracking-widest mb-1">Ngày hẹn</p>
+                        <p className="text-lg font-bold text-white/90">{selectedDate}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4 mt-6">
+                      <button
+                        onClick={() => backStep(2)}
+                        className="px-6 py-3 rounded-xl border border-white/10 text-white/50 font-bold hover:bg-white/5 hover:text-white transition-all text-xs uppercase tracking-widest"
+                      >
+                        Quay lại
+                      </button>
+
+                      <button
+                        onClick={handleConfirmBooking}
+                        disabled={creating}
+                        className="flex-1 py-3 rounded-xl bg-white text-slate-900 font-black text-xs uppercase tracking-[0.15em] shadow-lg hover:bg-gray-100 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
+                      >
+                        {creating ? 'Đang xử lý...' : 'Xác nhận đặt lịch'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+    </div>
   );
 }

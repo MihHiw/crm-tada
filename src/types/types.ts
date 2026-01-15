@@ -22,10 +22,13 @@ export interface User {
     phone: string | null;
     avatar_url?: string | null;
     role_id: number;
+    balance?: number;
     is_active: boolean;
     note?: string;
+    address?:string;
     created_at: string;
     updated_at?: string;
+    referralCode?: string;
 }
 
 export interface UserRole {

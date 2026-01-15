@@ -2,13 +2,17 @@
 export interface Customer {
     id: string;
     full_name: string;
-    phone: string;
     email: string | null;
+    phone: string | null;
     avatar_url?: string | null;
-    address?: string;
     role_id: number;
+    balance?: number;
     is_active: boolean;
+    address?: string;
+    note?: string;
     created_at: string;
+    updated_at?: string;
+    referralCode?: string;
 }
 
 // 2. Định nghĩa Stats

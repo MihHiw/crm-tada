@@ -1,36 +1,38 @@
-// src/hooks/useCustomerDetail.ts
+// src/hooks/customerDetail/useCustomerDetail.ts
 
+import {
+  mockBookings,
+  mockMemberRanks,
+  mockMemberships,
+  mockServices,
+  mockUsers,
+  mockWalletTransactions
+} from '@/mocks';
 import { useCallback, useEffect, useState } from 'react';
-import { 
-  mockUsers, 
-  mockMemberships, 
-  mockBookings, 
-  mockWalletTransactions, 
-  mockServices, 
-  mockMemberRanks 
-} from '@/mocks'; 
 
-// --- SỬA IMPORT TẠI ĐÂY ---
-import { 
-  Customer, 
-  CustomerStats, 
-  ServiceHistoryItem, 
-  TransactionHistoryItem 
-} from '@/types/customer'; // Import từ file vừa tạo ở Bước 1
+// Import đúng từ file type trung tâm
+import {
+  Customer,
+  CustomerStats,
+  ServiceHistoryItem,
+  TransactionHistoryItem
+} from '@/types/customer';
 
-import { Membership } from '@/types/types'; // Import Membership từ file types gốc
+import { Membership } from '@/types/types';
 
-// --- ĐỊNH NGHĨA LẠI INTERFACE CHO UI ---
+// --- TYPES ---
 
+// Interface NoteItem
 export interface NoteItem {
   id: string;
   content: string;
   type: 'normal' | 'important';
   author: string;
   createdAt: string;
+  authorAvatar?: string;
 }
 
-// Kế thừa Customer để có sẵn trường 'id', 'full_name'... => Sửa lỗi số 2
+// Interface chi tiết khách hàng
 export interface DetailedCustomer extends Customer {
   membership: (Membership & { rank_name: string; rank_color: string }) | null;
   stats: CustomerStats;
@@ -39,7 +41,15 @@ export interface DetailedCustomer extends Customer {
   notes: NoteItem[];
 }
 
-// --- HOOK (Giữ nguyên logic cũ) ---
+// 1. Interface cho dữ liệu cần Update (Thêm mới)
+export interface UpdateCustomerInput {
+  full_name: string;
+  phone: string;
+  email: string;
+}
+
+// --- HOOK ---
+
 export const useCustomerDetail = (customerId: string) => {
   const [customer, setCustomer] = useState<DetailedCustomer | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -47,9 +57,10 @@ export const useCustomerDetail = (customerId: string) => {
 
   const fetchCustomerData = useCallback(async () => {
     if (!customerId) return;
-    
+
     setLoading(true);
     try {
+      // Giả lập delay mạng
       await new Promise(resolve => setTimeout(resolve, 600));
 
       const userRaw = mockUsers.find(u => u.id === customerId);
@@ -57,16 +68,17 @@ export const useCustomerDetail = (customerId: string) => {
 
       const membershipRaw = mockMemberships.find(m => m.user_id === customerId);
       let membershipData = null;
-      
+
       if (membershipRaw) {
         const rank = mockMemberRanks.find(r => r.id === membershipRaw.rank_id);
         membershipData = {
           ...membershipRaw,
           rank_name: rank?.name || 'Thành viên',
-          rank_color: rank?.icon_url || '#000',
+          rank_color: rank?.icon_url || '#c0c0c0',
         };
       }
 
+      // Xử lý lịch sử đặt lịch
       const userBookings: ServiceHistoryItem[] = mockBookings
         .filter(b => b.user_id === customerId)
         .map(b => {
@@ -83,6 +95,7 @@ export const useCustomerDetail = (customerId: string) => {
         })
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+      // Xử lý lịch sử giao dịch ví
       const userTransactions: TransactionHistoryItem[] = mockWalletTransactions
         .filter(t => t.user_id === customerId)
         .map(t => ({
@@ -96,34 +109,44 @@ export const useCustomerDetail = (customerId: string) => {
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
       const completedBookings = userBookings.filter(b => b.status === 'completed');
-      
+
+      // Tính toán thống kê
       const stats: CustomerStats = {
         totalSpent: userBookings.reduce((sum, b) => sum + (b.status === 'completed' ? b.price : 0), 0),
         visitCount: completedBookings.length,
         lastVisit: completedBookings.length > 0 ? completedBookings[0].date : null,
         walletBalance: userTransactions
-            .filter(t => t.status === 'success')
-            .reduce((sum, t) => sum + t.amount, 0),
+          .filter(t => t.status === 'success')
+          .reduce((sum, t) => sum + t.amount, 0),
         upcomingBookings: userBookings.filter(b => ['pending', 'confirmed'].includes(b.status)).length,
       };
 
-      // Object này giờ đã khớp hoàn toàn với DetailedCustomer (có id từ userRaw)
+      // Tạo object dữ liệu đầy đủ
       const detailedCustomer: DetailedCustomer = {
         id: userRaw.id,
         full_name: userRaw.full_name,
         phone: userRaw.phone || '',
         email: userRaw.email,
         avatar_url: userRaw.avatar_url,
-        address: 'Chưa cập nhật',
         role_id: userRaw.role_id,
         is_active: userRaw.is_active,
         created_at: userRaw.created_at,
-        
+        balance: userRaw.balance, // Map thêm balance gốc nếu cần
+
         membership: membershipData,
         stats: stats,
         history: userBookings,
         transactions: userTransactions,
-        notes: [],
+        notes: [
+          {
+            id: 'init-note',
+            content: 'Khách hàng thân thiết, ưu tiên xếp lịch vào cuối tuần.',
+            type: 'important',
+            author: 'Quản lý',
+            createdAt: new Date().toISOString(),
+            authorAvatar: 'https://ui-avatars.com/api/?name=Admin&background=random'
+          }
+        ],
       };
 
       setCustomer(detailedCustomer);
@@ -141,5 +164,54 @@ export const useCustomerDetail = (customerId: string) => {
     fetchCustomerData();
   }, [fetchCustomerData]);
 
-  return { customer, loading, error, refetch: fetchCustomerData };
+  // --- ACTIONS ---
+
+  const addNote = async (content: string) => {
+    if (!customer) return;
+
+    const newNote: NoteItem = {
+      id: `note-${Date.now()}`,
+      content: content,
+      type: 'normal',
+      author: 'Tôi',
+      createdAt: new Date().toISOString(),
+      authorAvatar: 'https://ui-avatars.com/api/?name=Me&background=random'
+    };
+
+    setCustomer(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        notes: [newNote, ...prev.notes]
+      };
+    });
+  };
+
+  // 2. Hàm Update Customer (Thêm mới)
+  const updateCustomer = (data: UpdateCustomerInput) => {
+    if (!customer) return;
+
+    // TODO: Gọi API cập nhật lên server tại đây (await api.put...)
+    console.log("Saving customer data to API:", data);
+
+    // Cập nhật State Local (Optimistic Update)
+    setCustomer(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        full_name: data.full_name,
+        phone: data.phone,
+        email: data.email
+      };
+    });
+  };
+
+  return {
+    customer,
+    loading,
+    error,
+    refetch: fetchCustomerData,
+    addNote,
+    updateCustomer // Export hàm này
+  };
 };

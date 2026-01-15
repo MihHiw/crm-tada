@@ -16,15 +16,15 @@ export interface BookingBox {
 
 export interface ServiceUI {
     id: string;
-    _id: string; // [NEW] Thêm field này để tương thích logic cũ
+    _id: string;
     name: string;
     categoryId: string | number;
     categoryName: string;
     price: number;
     currency: string;
 
-    durationMin: number;      // Style mới (CamelCase)
-    duration_min: number;     // [NEW] Style cũ (Snake_case) để tương thích
+    durationMin: number;    
+    duration_min: number;     
 
     description: string;
     imageUrl: string;
@@ -38,7 +38,6 @@ export interface CategoryUI {
     slug?: string;
 }
 
-// --- 2. HOOK ---
 
 export const useServicesData = () => {
     const [allServices, setAllServices] = useState<ServiceUI[]>([]);
@@ -55,10 +54,8 @@ export const useServicesData = () => {
         try {
             await new Promise(resolve => setTimeout(resolve, 600));
 
-            // 1. Map Categories
             setCategories(mockCategories);
 
-            // 2. Map Services & Join Data
             const mappedServices: ServiceUI[] = mockServices.map(service => {
                 const category = mockCategories.find(c => c.id === service.category_id);
                 const packages = mockServicePackages.filter(p => p.service_id === service.id);
@@ -73,7 +70,7 @@ export const useServicesData = () => {
 
                 return {
                     id: service.id,
-                    _id: service.id, // [FIX] Map thêm _id
+                    _id: service.id, 
 
                     name: service.name,
                     categoryId: service.category_id,
@@ -82,7 +79,7 @@ export const useServicesData = () => {
                     currency: 'VND',
 
                     durationMin: service.duration_minutes,
-                    duration_min: service.duration_minutes, // [FIX] Map thêm duration_min
+                    duration_min: service.duration_minutes, 
 
                     description: service.description || '',
                     imageUrl: service.image_url || 'https://placehold.co/400x300?text=Service',

@@ -26,11 +26,6 @@ export interface ConsultationRequest extends Omit<Consultation, 'customer_id' | 
     history: History[];
 }
 
-/**
- * GIẢI PHÁP LOẠI BỎ ANY: 
- * Định nghĩa một kiểu trung gian để ép kiểu dữ liệu từ Mock 
- * nếu interface Consultation gốc thiếu trường history.
- */
 interface MockConsultationWithHistory extends Consultation {
     history?: History[];
 }
@@ -45,11 +40,7 @@ let inMemoryStore: ConsultationRequest[] = (mockConsultations as MockConsultatio
         customer_phone: customer?.phone ?? cons.phone ?? 'Chưa cập nhật',
         customer_email: customer?.email ?? cons.email ?? null,
         customer_avatar: customer?.avatar_url ?? null,
-
-        // Ép kiểu status an toàn từ string sang ConsultationStatus
         status: (cons.status as ConsultationStatus) || 'PENDING',
-
-        // Thay vì (cons as any), ta đã ép kiểu mảng mockConsultations ngay từ đầu map
         history: cons.history && cons.history.length > 0 ? cons.history : [
             {
                 id: `h-init-${cons.id}`,
@@ -67,6 +58,42 @@ const fakeApi = {
     getAll: async (): Promise<ConsultationRequest[]> => {
         await new Promise((resolve) => setTimeout(resolve, 800));
         return [...inMemoryStore];
+    },
+
+    // --- MỚI: Hàm tạo yêu cầu ---
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    create: async (data: any): Promise<ConsultationRequest> => {
+        await new Promise((resolve) => setTimeout(resolve, 600));
+
+        const newId = `cons-${Date.now()}`;
+        const now = new Date().toISOString();
+
+        const newItem: ConsultationRequest = {
+            id: newId,
+            customer_name: data.customer_name || 'Khách mới',
+            customer_phone: data.customer_phone || '',
+            service: data.service || 'Chưa xác định',
+            notes: data.notes || '',
+            source: data.source || 'Walk-in',
+            status: 'PENDING',
+            created_at: now,
+            updated_at: now,
+            customer_email: null,
+            customer_avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.customer_name || 'U')}&background=random`,
+            history: [
+                {
+                    id: `h-${Date.now()}`,
+                    status: 'PENDING',
+                    note: 'Tạo mới hồ sơ tư vấn',
+                    created_at: now,
+                    createdBy: 'Admin'
+                }
+            ],
+            ...data
+        } as ConsultationRequest;
+
+        inMemoryStore = [newItem, ...inMemoryStore];
+        return newItem;
     },
 
     updateStatus: async (id: string, nextStatus: ConsultationStatus, userNote: string): Promise<boolean> => {
@@ -134,6 +161,31 @@ export const useConsultationData = () => {
         fetchData();
     }, [fetchData]);
 
+    // --- SỬA LỖI Ở ĐÂY ---
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const addRequest = async (requestData: any) => {
+        const tempId = `temp-${Date.now()}`;
+        const tempItem: ConsultationRequest = {
+            id: tempId,
+            ...requestData,
+            status: 'PENDING',
+            customer_avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(requestData.customer_name)}&background=random`,
+            history: [],
+            created_at: new Date().toISOString()
+        };
+
+        setData((prev) => [tempItem, ...prev]);
+
+        try {
+            const createdItem = await fakeApi.create(requestData);
+            setData((prev) => prev.map(item => item.id === tempId ? createdItem : item));
+        } catch (error: unknown) { // Thay 'err' bằng 'error: unknown' để fix lỗi type
+            console.error("Lỗi khi thêm mới:", error); // Sử dụng biến error để fix lỗi unused
+            setData((prev) => prev.filter(item => item.id !== tempId));
+            alert("Thêm mới thất bại");
+        }
+    };
+
     const updateStatus = async (id: string, newStatus: ConsultationStatus, noteContent: string): Promise<void> => {
         const previousData = [...data];
 
@@ -200,6 +252,7 @@ export const useConsultationData = () => {
         updateStatus,
         updateDetails,
         deleteRequest,
+        addRequest,
         refresh: fetchData
     };
 };

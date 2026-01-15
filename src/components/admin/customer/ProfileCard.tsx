@@ -75,7 +75,7 @@ const ProfileCard = ({ customer }: { customer: DetailedCustomer }) => {
 
                 {/* Danh sách thông tin chi tiết */}
                 <div className="space-y-1 border-t border-gray-50 pt-6">
-                    <InfoRow icon={Phone} text={customer.phone} />
+                    <InfoRow icon={Phone} text={customer.phone || "Chưa cập nhật"} />
                     <InfoRow icon={Mail} text={customer.email || 'Chưa cập nhật Email'} />
                     <InfoRow icon={MapPin} text={customer.address || 'Địa chỉ: Việt Nam'} />
                     <InfoRow icon={Calendar} text={`Ngày tham gia: ${formattedDob}`} />

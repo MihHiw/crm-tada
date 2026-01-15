@@ -1,6 +1,8 @@
 "use client";
 
 import { Sidebar } from "@/components/admin/Sidebar";
+import GlobalBackground from '@/components/GlobalBackground';
+
 import { ConsultationRequest, ConsultationStatus, useConsultationData } from '@/hooks/consultationData/useConsultationData';
 import {
     Edit2,
@@ -41,6 +43,8 @@ export default function ConsultationManagement() {
 
     return (
         <div className="flex min-h-screen bg-[#FFF5F7]/30 font-sans">
+            <GlobalBackground />
+
             <Sidebar />
             <div className="flex-1 lg:ml-64 transition-all duration-300">
                 <main className="p-6 md:p-8 max-w-[1600px] mx-auto space-y-6">

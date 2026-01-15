@@ -2,6 +2,7 @@ import { User } from '@/types/types';
 
 
 
+
 export const mockUsers: User[] = [
     {
         id: 'user-admin-01',
@@ -10,6 +11,7 @@ export const mockUsers: User[] = [
         phone: '0348210923',
         role_id: 1,
         is_active: true,
+        balance: 6000000,
         created_at: '2025-01-01T00:00:00Z',
         avatar_url: 'https://i.pravatar.cc/150?u=admin',
     },
@@ -20,6 +22,7 @@ export const mockUsers: User[] = [
         phone: '0971225121',
         role_id: 3,
         is_active: true,
+        balance: 6000000,
         created_at: '2025-01-10T00:00:00Z',
         avatar_url: 'https://i.pravatar.cc/150?u=staff1',
     },
@@ -30,6 +33,7 @@ export const mockUsers: User[] = [
         phone: '0909000333',
         role_id: 3,
         is_active: true,
+        balance: 5000000,
         created_at: '2025-01-15T00:00:00Z',
         avatar_url: 'https://i.pravatar.cc/150?u=staff2',
     },
@@ -40,26 +44,29 @@ export const mockUsers: User[] = [
         phone: '0909000333',
         role_id: 2,
         is_active: true,
+        balance: 5000000,
         created_at: '2025-01-15T00:00:00Z',
         avatar_url: 'https://i.pravatar.cc/150?u=staff2',
     },
     {
         id: 'cust-01',
-        full_name: 'Phạm Khách Hàng',
+        full_name: 'Phạm Khách A',
         email: 'khach1@gmail.com',
         phone: '0123456789',
         role_id: 4,
         is_active: true,
+        balance: 5000000,
         created_at: '2025-02-01T00:00:00Z',
         avatar_url: 'https://i.pravatar.cc/150?u=cust1',
     },
     {
         id: 'cust-02',
-        full_name: 'Hoàng Thị VIP',
+        full_name: 'Hoàng Thị VIP B',
         email: 'vip@gmail.com',
         phone: '0987654321',
         role_id: 4,
         is_active: true,
+        balance: 5000000,
         created_at: '2025-02-05T00:00:00Z',
         avatar_url: 'https://i.pravatar.cc/150?u=cust2',
     },

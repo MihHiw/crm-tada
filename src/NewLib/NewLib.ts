@@ -53,6 +53,8 @@ export interface User {
     phone: string | null;
     avatar_url?: string | null;
     role_id: number;
+    balance?: number;
+    address?: string;
     note: string;
     is_active: boolean;
     created_at: string;
