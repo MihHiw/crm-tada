@@ -1,10 +1,12 @@
 import { mockUsers } from '@/mocks/users';
 import { useAuthStore } from '@/store/authStore';
 import axios from 'axios';
-import { AlertTriangle, Info, Phone, Smartphone } from 'lucide-react';
+import { AlertTriangle, Info, MonitorSmartphone, Phone, ShieldCheck, Smartphone, Zap } from 'lucide-react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
+// Đảm bảo bạn đã import đúng đường dẫn component GlobalBackground
+import GlobalBackground from '@/components/GlobalBackground';
 
 const fakeDelay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -20,7 +22,6 @@ export default function LoginPage() {
   const IS_MOCK_MODE = true;
 
   const handleRedirect = useCallback((roleId: number) => {
-    // Đảm bảo roleId hợp lệ
     if (roleId === 1 || roleId === 2) {
       router.replace('/admin');
     } else {
@@ -52,10 +53,9 @@ export default function LoginPage() {
 
     try {
       if (IS_MOCK_MODE) {
-        console.log("Đang chạy chế độ Mock Data..."); // Log để debug
+        console.log("Đang chạy chế độ Mock Data...");
         await fakeDelay(1000);
 
-        // Tìm user trong danh sách mock (đảm bảo file @/mocks/auth có user này)
         const foundUser = mockUsers.find(u => u.phone === phone.trim());
 
         if (foundUser) {
@@ -85,11 +85,9 @@ export default function LoginPage() {
 
           handleRedirect(foundUser.role_id);
         } else {
-          // Thêm gợi ý số điện thoại nếu nhập sai
           setError('SĐT không có trong dữ liệu Mock (Thử: 0901234567)');
         }
       } else {
-        // --- LOGIC API THẬT ---
         const response = await axios.post(`${url}/api/auth/check-user`, { phone: phone.trim() }, { headers: { 'x-business-code': 'VANILA001' } });
         if (response.data.exists) {
           const loginResponse = await axios.post(`${url}/api/auth/login-by-phone`, { phone: phone.trim() }, { headers: { 'x-business-code': 'VANILA001' } });
@@ -121,72 +119,79 @@ export default function LoginPage() {
   return (
     <>
       <Head>
-        <title>Đăng nhập - Vanilla Beauty & Wellness</title>
+        <title>Đăng nhập - BizTada</title>
       </Head>
 
-      <div className="min-h-screen bg-[#FFF5F5] flex items-center justify-center p-4 font-sans selection:bg-orange-100 selection:text-orange-600">
-        <div className="bg-white rounded-[30px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] p-8 md:p-8 w-full max-w-[450px] relative">
+      {/* Thay đổi 1: Wrapper bọc GlobalBackground */}
+      <div className="min-h-screen flex items-center justify-center p-4 font-sans text-white relative">
+        <GlobalBackground />
 
-          <div className="flex flex-col items-center mb-6">
-            <div className="inline-block bg-gradient-to-r from-pink-500 to-orange-400 text-white rounded-full p-4 mb-4">
-              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {/* Thay đổi 2: Card sử dụng Glassmorphism (bg-white/10, backdrop-blur) */}
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-[30px] shadow-2xl p-8 md:p-10 w-full max-w-[450px] relative z-10 animate-in fade-in zoom-in duration-500">
+
+          <div className="flex flex-col items-center mb-8">
+            {/* Icon Gradient Xanh/Tím */}
+            <div className="inline-block bg-gradient-to-tr from-cyan-500 to-blue-600 text-white rounded-2xl p-4 mb-4 shadow-lg shadow-blue-500/30">
+              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
               </svg>
             </div>
 
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-orange-500 bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2 text-center tracking-tight">
               Chào mừng trở lại! 👋
             </h1>
 
-            <p className="text-gray-500 text-sm font-medium">
-              Đăng nhập để tiếp tục sử dụng dịch vụ
+            <p className="text-white/60 text-sm font-medium text-center">
+              Đăng nhập hệ thống CRM
             </p>
 
-            {/* Hiển thị dòng này để biết đang chạy Mock Mode */}
             {IS_MOCK_MODE && (
-              <span className="mt-2 px-2 py-1 bg-yellow-100 text-yellow-700 text-[10px] rounded font-mono font-bold border border-yellow-300">
+              <span className="mt-3 px-3 py-1 bg-amber-500/20 text-amber-300 text-[10px] rounded-full font-mono font-bold border border-amber-500/30 backdrop-blur-sm">
                 MOCK MODE ENABLED
               </span>
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-gray-700 ml-1">
-                Số điện thoại <span className="text-red-500">*</span>
+              <label className="block text-xs font-bold text-white/80 ml-1 uppercase tracking-wider">
+                Số điện thoại
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Phone className="h-[18px] w-[18px] text-gray-400 group-focus-within:text-[#FF512F] transition-colors" />
+                  {/* Icon màu trắng mờ, focus sáng lên */}
+                  <Phone className="h-[18px] w-[18px] text-white/40 group-focus-within:text-cyan-400 transition-colors" />
                 </div>
+                {/* Input nền tối mờ */}
                 <input
                   type="tel"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-[#FF512F] focus:ring-4 focus:ring-[#FF512F]/10 transition-all shadow-sm hover:border-gray-300"
+                  className="block w-full pl-11 pr-4 py-3.5 bg-black/20 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/20 transition-all hover:bg-black/30"
                   placeholder="0901234567"
-                  maxLength={15} // Đã bỏ pattern cứng để tránh lỗi nhập liệu
+                  maxLength={15}
                 />
               </div>
-              <p className="text-[10px] text-gray-400 ml-1 flex items-center gap-1.5">
+              <p className="text-[10px] text-white/40 ml-1 flex items-center gap-1.5">
                 <Smartphone size={12} /> Nhập số điện thoại đã đăng ký
               </p>
             </div>
 
-            <div className="bg-[#EFF6FF] border border-[#DBEAFE] rounded-xl p-4 flex gap-3 items-start">
-              <Info className="w-5 h-5 text-[#3B82F6] shrink-0 mt-0.5" />
+            {/* Info Box màu xanh dương đậm */}
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex gap-3 items-start backdrop-blur-sm">
+              <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-bold text-[#1D4ED8] mb-1">Đăng nhập không cần mật khẩu</p>
-                <p className="text-[10px] text-[#3B82F6] leading-relaxed font-medium">
-                  Chỉ cần nhập số điện thoại đã đăng ký, hệ thống sẽ tự động nhận diện và đăng nhập cho bạn.
+                <p className="text-xs font-bold text-blue-300 mb-1">Đăng nhập không cần mật khẩu</p>
+                <p className="text-[10px] text-blue-200/70 leading-relaxed font-medium">
+                  Hệ thống tự động nhận diện tài khoản qua số điện thoại.
                 </p>
               </div>
             </div>
 
             {error && (
-              <div className="bg-[#FEF2F2] border border-[#FEE2E2] text-[#EF4444] px-4 py-3 rounded-xl text-xs flex items-center gap-2 animate-shake font-medium">
-                <AlertTriangle size={14} />
+              <div className="bg-red-500/10 border border-red-500/20 text-red-200 px-4 py-3 rounded-xl text-xs flex items-center gap-2 animate-shake font-medium backdrop-blur-sm">
+                <AlertTriangle size={14} className="text-red-400" />
                 {error}
               </div>
             )}
@@ -194,52 +199,60 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-orange-400 text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              // Button Gradient xanh/tím để nổi bật trên nền tối
+              className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-blue-900/50 hover:shadow-cyan-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border border-white/10"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-5 w-5 text-white/80" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Đang đăng nhập...
+                  Đang xử lý...
                 </span>
               ) : (
-                '🔓 Đăng nhập'
+                '🔓 Đăng nhập ngay'
               )}
             </button>
           </form>
 
-          <div className="mt-6 text-center space-y-6">
-            <p className="text-xs text-gray-500 font-medium">
+          <div className="mt-8 text-center space-y-6">
+            <p className="text-xs text-white/40 font-medium">
               Chưa có tài khoản?{' '}
               <button
                 onClick={() => router.push('/register')}
-                className="text-[#FF512F] hover:text-[#E04F30] font-bold hover:underline transition-all"
+                className="text-cyan-400 hover:text-cyan-300 font-bold hover:underline transition-all"
               >
-                Đăng ký ngay
+                Đăng ký thành viên
               </button>
             </p>
 
-            <div className="mt-4 pt-6 border-t border-gray-200">
-              <p className="text-center text-xs text-gray-500 leading-relaxed">
-                Gặp vấn đề khi đăng nhập?{' '}
-                <a href="#" className="text-pink-600 hover:underline">Liên hệ hỗ trợ</a>
+            <div className="mt-4 pt-6 border-t border-white/10">
+              <p className="text-center text-xs text-white/30 leading-relaxed">
+                Gặp vấn đề?{' '}
+                <a href="#" className="text-indigo-400 hover:text-indigo-300 hover:underline transition-colors">Liên hệ hỗ trợ</a>
               </p>
             </div>
 
+            {/* Grid Features */}
             <div className="mt-6 grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="text-2xl mb-1">🔒</div>
-                <p className="text-xs text-gray-600">Bảo mật cao</p>
+              <div className="flex flex-col items-center gap-2 group">
+                <div className="p-2 bg-white/5 rounded-full text-white/70 group-hover:text-cyan-400 group-hover:bg-white/10 transition-all">
+                  <ShieldCheck size={20} />
+                </div>
+                <p className="text-[10px] text-white/40 group-hover:text-white/60 transition-colors">Bảo mật cao</p>
               </div>
-              <div>
-                <div className="text-2xl mb-1">⚡</div>
-                <p className="text-xs text-gray-600">Đăng nhập nhanh</p>
+              <div className="flex flex-col items-center gap-2 group">
+                <div className="p-2 bg-white/5 rounded-full text-white/70 group-hover:text-cyan-400 group-hover:bg-white/10 transition-all">
+                  <Zap size={20} />
+                </div>
+                <p className="text-[10px] text-white/40 group-hover:text-white/60 transition-colors">Tốc độ nhanh</p>
               </div>
-              <div>
-                <div className="text-2xl mb-1">📱</div>
-                <p className="text-xs text-gray-600">Nhiều thiết bị</p>
+              <div className="flex flex-col items-center gap-2 group">
+                <div className="p-2 bg-white/5 rounded-full text-white/70 group-hover:text-cyan-400 group-hover:bg-white/10 transition-all">
+                  <MonitorSmartphone size={20} />
+                </div>
+                <p className="text-[10px] text-white/40 group-hover:text-white/60 transition-colors">Đa nền tảng</p>
               </div>
             </div>
           </div>
