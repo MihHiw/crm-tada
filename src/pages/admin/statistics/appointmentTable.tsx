@@ -2,7 +2,6 @@
 
 import { Sidebar } from "@/components/admin/Sidebar";
 import GlobalBackground from '@/components/GlobalBackground';
-
 import { ConsultationRequest, ConsultationStatus, useConsultationData } from '@/hooks/consultationData/useConsultationData';
 import {
     Edit2,
@@ -14,13 +13,14 @@ import {
 import Image from 'next/image';
 import { useState } from 'react';
 
+// CẬP NHẬT: Màu sắc trạng thái dạng Neon/Dark mode
 const STATUS_MAP: Record<ConsultationStatus, { label: string, color: string }> = {
-    PENDING: { label: 'Chờ xử lý', color: 'bg-amber-100 text-amber-700 border-amber-200' },
-    CONTACTED: { label: 'Đã liên hệ', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-    UNREACHABLE: { label: 'Không nghe máy', color: 'bg-gray-100 text-gray-700 border-gray-200' },
-    APPOINTMENT: { label: 'Đã đặt lịch', color: 'bg-purple-100 text-purple-700 border-purple-200' },
-    SUCCESS: { label: 'Thành công', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-    CANCELLED: { label: 'Đã hủy', color: 'bg-red-100 text-red-700 border-red-200' },
+    PENDING: { label: 'Chờ xử lý', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
+    CONTACTED: { label: 'Đã liên hệ', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
+    UNREACHABLE: { label: 'Không nghe máy', color: 'bg-slate-500/20 text-slate-300 border-slate-500/30' },
+    APPOINTMENT: { label: 'Đã đặt lịch', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30' },
+    SUCCESS: { label: 'Thành công', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
+    CANCELLED: { label: 'Đã hủy', color: 'bg-red-500/20 text-red-300 border-red-500/30' },
 };
 
 export default function ConsultationManagement() {
@@ -36,39 +36,42 @@ export default function ConsultationManagement() {
     });
 
     if (loading) return (
-        <div className="flex h-screen w-full items-center justify-center bg-rose-50/20">
-            <div className="animate-spin rounded-full h-10 w-10 border-4 border-rose-500 border-t-transparent"></div>
+        <div className="flex h-screen w-full items-center justify-center bg-slate-900">
+            <div className="animate-spin rounded-full h-10 w-10 border-4 border-indigo-500 border-t-transparent"></div>
         </div>
     );
 
     return (
-        <div className="flex min-h-screen bg-[#FFF5F7]/30 font-sans">
+        <div className="flex min-h-screen font-sans text-slate-200">
+            {/* Background giữ nguyên */}
             <GlobalBackground />
 
             <Sidebar />
-            <div className="flex-1 lg:ml-64 transition-all duration-300">
+            <div className="flex-1 lg:ml-64 transition-all duration-300 relative z-10">
                 <main className="p-6 md:p-8 max-w-[1600px] mx-auto space-y-6">
+                    {/* Header */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
-                            <h1 className="text-2xl font-bold text-slate-800">Quản lý Tư vấn</h1>
-                            <p className="text-slate-500 text-sm">Theo dõi và chăm sóc khách hàng tiềm năng</p>
+                            <h1 className="text-2xl font-bold text-white tracking-tight">Quản lý Tư vấn</h1>
+                            <p className="text-slate-400 text-sm mt-1">Theo dõi và chăm sóc khách hàng tiềm năng</p>
                         </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-rose-100 flex flex-wrap gap-4 items-center">
+                    {/* Filter & Search Bar - Glass Effect */}
+                    <div className="bg-white/5 backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-white/10 flex flex-wrap gap-4 items-center">
                         <div className="relative flex-1 min-w-[300px]">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                             <input
                                 type="text"
                                 placeholder="Tìm theo tên khách hàng hoặc số điện thoại..."
-                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-rose-300 transition-all text-sm"
+                                className="w-full pl-10 pr-4 py-2.5 bg-slate-900/50 border border-white/5 rounded-xl outline-none focus:border-indigo-400 focus:bg-slate-900/70 transition-all text-sm text-white placeholder:text-slate-500"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-slate-100">
+                        <div className="flex items-center gap-2 bg-slate-900/50 p-1 rounded-xl border border-white/5">
                             <select
-                                className="bg-transparent text-sm font-medium px-3 py-1 outline-none text-slate-600"
+                                className="bg-transparent text-sm font-medium px-3 py-1.5 outline-none text-slate-300 [&>option]:bg-slate-900 [&>option]:text-slate-200"
                                 value={filterStatus}
                                 onChange={(e) => setFilterStatus(e.target.value as ConsultationStatus | 'ALL')}
                             >
@@ -80,11 +83,12 @@ export default function ConsultationManagement() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-3xl shadow-sm border border-rose-100 overflow-hidden">
+                    {/* Table Container - Glass Effect */}
+                    <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 overflow-hidden">
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-rose-50/50 border-b border-rose-100">
-                                    <tr className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-white/5 border-b border-white/10">
+                                    <tr className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                                         <th className="px-8 py-5">Khách hàng</th>
                                         <th className="px-6 py-5">Nội dung tư vấn</th>
                                         <th className="px-6 py-5">Ngày gửi</th>
@@ -92,7 +96,7 @@ export default function ConsultationManagement() {
                                         <th className="px-8 py-5 text-right">Thao tác</th>
                                     </tr>
                                 </thead>
-                                <tbody className="text-sm divide-y divide-rose-50/50">
+                                <tbody className="text-sm divide-y divide-white/5">
                                     {filteredData.map((item) => (
                                         <ConsultationRow
                                             key={item.id}
@@ -103,6 +107,11 @@ export default function ConsultationManagement() {
                                     ))}
                                 </tbody>
                             </table>
+                            {filteredData.length === 0 && (
+                                <div className="text-center py-10 text-slate-500 italic">
+                                    Không tìm thấy dữ liệu nào phù hợp.
+                                </div>
+                            )}
                         </div>
                     </div>
                 </main>
@@ -121,42 +130,46 @@ function ConsultationRow({ item, onUpdateStatus, onDelete }: RowProps) {
     const statusInfo = STATUS_MAP[item.status];
 
     return (
-        <tr className="hover:bg-rose-50/20 transition-all group">
+        <tr className="hover:bg-white/5 transition-colors group">
             <td className="px-8 py-5">
                 <div className="flex items-center gap-4">
                     <div className="relative w-11 h-11 flex-shrink-0">
                         <Image
                             src={item.customer_avatar || "https://i.pravatar.cc/150?u=guest"}
-                            alt="avatar" fill className="rounded-2xl object-cover ring-2 ring-white shadow-sm"
+                            alt="avatar"
+                            fill
+                            className="rounded-full object-cover ring-2 ring-white/20 shadow-lg"
                         />
                     </div>
                     <div>
-                        <p className="font-bold text-slate-800">{item.customer_name}</p>
-                        <div className="flex flex-col text-[11px] text-slate-400 mt-0.5">
-                            <span className="flex items-center gap-1 font-medium"><Phone size={10} /> {item.customer_phone}</span>
-                            {item.customer_email && <span className="flex items-center gap-1"><Mail size={10} /> {item.customer_email}</span>}
+                        <p className="font-semibold text-white">{item.customer_name}</p>
+                        <div className="flex flex-col text-[11px] text-slate-400 mt-1 gap-0.5">
+                            <span className="flex items-center gap-1.5"><Phone size={10} className="text-indigo-400" /> {item.customer_phone}</span>
+                            {item.customer_email && <span className="flex items-center gap-1.5"><Mail size={10} className="text-indigo-400" /> {item.customer_email}</span>}
                         </div>
                     </div>
                 </div>
             </td>
             <td className="px-6 py-5">
                 <div className="max-w-[250px]">
-                    {/* SỬA TẠI ĐÂY: Dùng item.content thay vì item.description */}
-                    <p className="text-slate-600 line-clamp-2 italic">&#8220;{item.description || 'Yêu cầu tư vấn dịch vụ...'}&#8221;</p>
+                    <p className="text-slate-300 line-clamp-2 italic text-xs leading-relaxed opacity-90">
+                        &#8220;{item.description || 'Yêu cầu tư vấn dịch vụ...'}&#8221;
+                    </p>
                     {item.history.length > 0 && (
-                        <p className="text-[10px] text-rose-400 font-bold mt-1 uppercase tracking-tighter">
-                            Ghi chú mới: {item.history[0].note}
+                        <p className="text-[10px] text-indigo-300 font-bold mt-2 uppercase tracking-wide flex items-center gap-1">
+                            <span className="w-1 h-1 bg-indigo-400 rounded-full inline-block"></span>
+                            Note: {item.history[0].note}
                         </p>
                     )}
                 </div>
             </td>
             <td className="px-6 py-5">
-                <p className="font-medium text-slate-700">{new Date(item.created_at).toLocaleDateString('vi-VN')}</p>
-                <p className="text-xs text-slate-400">{new Date(item.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</p>
+                <p className="font-medium text-slate-200">{new Date(item.created_at).toLocaleDateString('vi-VN')}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{new Date(item.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</p>
             </td>
             <td className="px-6 py-5 text-center">
                 <select
-                    className={`text-[11px] font-bold px-3 py-1.5 rounded-xl border outline-none transition-all cursor-pointer ${statusInfo.color}`}
+                    className={`text-[11px] font-bold px-3 py-1.5 rounded-full border outline-none transition-all cursor-pointer appearance-none text-center min-w-[120px] [&>option]:bg-slate-900 [&>option]:text-slate-200 ${statusInfo.color}`}
                     value={item.status}
                     onChange={(e) => {
                         const note = window.prompt("Nhập ghi chú phản hồi:");
@@ -169,13 +182,13 @@ function ConsultationRow({ item, onUpdateStatus, onDelete }: RowProps) {
                 </select>
             </td>
             <td className="px-8 py-5 text-right">
-                <div className="flex justify-end gap-2">
-                    <button className="p-2 hover:bg-rose-100 text-rose-500 rounded-lg transition-colors" title="Chỉnh sửa">
+                <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button className="p-2 hover:bg-white/10 text-slate-400 hover:text-white rounded-lg transition-colors" title="Chỉnh sửa">
                         <Edit2 size={16} />
                     </button>
                     <button
                         onClick={() => onDelete(item.id)}
-                        className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors"
+                        className="p-2 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg transition-colors"
                         title="Xóa"
                     >
                         <Trash2 size={16} />
