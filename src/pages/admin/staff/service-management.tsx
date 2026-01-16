@@ -5,7 +5,6 @@ import GlobalBackground from '@/components/GlobalBackground';
 import { ServiceUI, useServicesData } from '@/hooks/servicespa/useServicesData';
 
 import {
-    Clock,
     Edit3,
     Image as ImageIcon,
     Plus,
@@ -205,10 +204,6 @@ export default function ServiceManagement() {
                                         <div className="flex flex-col">
                                             <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Giá dịch vụ</span>
                                             <span className="text-lg font-black text-emerald-400 tracking-tight">{service.price.toLocaleString()}đ</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5 text-white/70 bg-white/5 px-3 py-1.5 rounded-xl border border-white/5">
-                                            <Clock size={12} className="text-emerald-400" />
-                                            <span className="text-[10px] font-black uppercase tracking-wider">{service.durationMin}p</span>
                                         </div>
                                     </div>
                                 </div>

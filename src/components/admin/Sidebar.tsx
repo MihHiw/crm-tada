@@ -25,7 +25,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// ... (Giữ nguyên phần ROLES và MENU_GROUPS)
+// ... (Giữ nguyên phần ROLES và MENU_GROUPS như cũ)
 const ROLES = { ADMIN: 1, MANAGER: 2, STAFF: 3, CUSTOMER: 4 };
 const MENU_GROUPS = [
     {
@@ -124,14 +124,13 @@ export const Sidebar = () => {
     const displayRoleName = mockRoles.find(r => r.id === currentUser?.role_id)?.name || "Người dùng";
 
     return (
-        // 👇 1. SỬA MÀU CHỮ CHÍNH: text-white
         <aside className="w-64 bg-[#0f172a] text-white flex flex-col fixed h-full z-20 shadow-xl border-r border-[#1e293b] font-sans transition-all duration-300">
 
             {/* Phần Logo */}
             <div className="h-20 flex flex-col items-center justify-center border-b border-[#1e293b] relative overflow-hidden flex-shrink-0">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl"></div>
                 <Link href="/admin" className="relative z-10">
-                    <div className="relative h-32 w-32">
+                    <div className="relative h-32 w-52">
                         <Image src="/img/logo-vanila.png" alt="Logo" fill className="object-contain brightness-0 invert" priority />
                     </div>
                 </Link>
@@ -152,27 +151,31 @@ export const Sidebar = () => {
                                 onClick={() => toggleGroup(index)}
                                 className={`px-4 mb-2 flex items-center justify-between cursor-pointer group/label hover:bg-[#1e293b] p-2 rounded-lg transition-all ${isOpen ? "bg-[#1e293b]" : ""}`}
                             >
-                                <div className="flex items-center gap-2 opacity-80 group-hover/label:opacity-100">
-                                    {/* 👇 Icon màu trắng */}
-                                    <Sparkles size={10} className="text-white" />
-                                    {/* 👇 Chữ Label màu trắng */}
-                                    <p className={`text-[10px] font-bold uppercase tracking-[0.2em] text-white`}>
+                                <div className="flex items-center gap-3 opacity-90 group-hover/label:opacity-100">
+                                    {/* 👇 Tăng size icon lên 18 để cân đối với chữ */}
+                                    <Sparkles size={18} className="text-white" />
+
+                                    {/* 👇 1. SỬA FONT TIÊU ĐỀ: text-[18px] */}
+                                    {/* Đã bỏ uppercase và tracking để chữ 18px không bị quá rộng */}
+                                    <p className={`text-[18px] font-bold text-white`}>
                                         {group.groupLabel}
                                     </p>
                                 </div>
-                                {/* 👇 Mũi tên màu trắng (có độ trong suốt nhẹ khi chưa active) */}
-                                <ChevronRight size={14} className={`text-white/70 transition-transform duration-300 ${isOpen ? "rotate-90 text-white" : ""}`} />
+                                <ChevronRight size={18} className={`text-white/70 transition-transform duration-300 ${isOpen ? "rotate-90 text-white" : ""}`} />
                             </div>
 
                             <div className={`space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-[500px] opacity-100 mb-4" : "max-h-0 opacity-0"}`}>
                                 {visibleItems.map((item) => (
-                                    <SidebarItem
-                                        key={item.href}
-                                        icon={item.icon}
-                                        label={item.label}
-                                        href={item.href}
-
-                                    />
+                                    /* 👇 2. SỬA FONT ITEM CON: Truyen prop className (hoặc style) vào SidebarItem */
+                                    <div key={item.href} className="text-[16px]">
+                                        <SidebarItem
+                                            icon={item.icon}
+                                            label={item.label}
+                                            href={item.href}
+                                        // ⚠️ Lưu ý: Bạn cần chắc chắn file SidebarItem.tsx nhận props className
+                                        // Nếu SidebarItem không nhận className, hãy bọc nó trong div hoặc sửa file SidebarItem
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         </div>
@@ -180,7 +183,7 @@ export const Sidebar = () => {
                 })}
             </div>
 
-            {/* 👇 SỬA MÀU CHỮ USER PROFILE */}
+            {/* Phần User Profile */}
             <div className="p-4 bg-gradient-to-t from-[#020617] to-transparent mt-auto">
                 <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#1e293b]/50 border border-[#334155] shadow-sm backdrop-blur-sm">
                     <div className="relative w-10 h-10">
@@ -191,13 +194,10 @@ export const Sidebar = () => {
                         <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-[#1e293b] rounded-full"></span>
                     </div>
                     <div className="flex-1 overflow-hidden">
-                        {/* 👇 Tên user màu trắng tinh */}
                         <p className="text-sm font-bold text-white truncate">{currentUser?.full_name || "User"}</p>
-                        {/* 👇 Role màu trắng mờ */}
                         <p className="text-[10px] text-white/70 uppercase">{displayRoleName}</p>
                     </div>
                 </div>
-                {/* 👇 Nút đăng xuất vẫn giữ màu đỏ nhạt để cảnh báo, nhưng sáng hơn để hợp nền tối */}
                 <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg mt-2 transition-colors">
                     Đăng xuất
                 </button>

@@ -25,7 +25,7 @@ export interface User {
     balance?: number;
     is_active: boolean;
     note?: string;
-    address?:string;
+    address?: string;
     created_at: string;
     updated_at?: string;
     referralCode?: string;

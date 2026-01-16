@@ -12,11 +12,22 @@ export const mockWalletTransactions: WalletTransaction[] = [
     },
     {
         id: 'tx-02',
-        user_id: 'cust-02',
+        user_id: 'cust-01',
         amount: -450000,
         type: 'payment',
         reference_id: 'bk-002',
         description: 'Thanh toán dịch vụ Massage',
+        status: 'success',
+        created_at: '2026-01-08T15:30:00Z',
+    },
+
+    {
+        id: 'tx-03',
+        user_id: 'staff-01',
+        amount: -450000,
+        type: 'withdrawal',
+        reference_id: 'bk-002',
+        description: 'Rút tiền về tài khoản',
         status: 'success',
         created_at: '2026-01-08T15:30:00Z',
     },
