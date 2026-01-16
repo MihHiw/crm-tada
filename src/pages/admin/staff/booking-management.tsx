@@ -87,6 +87,8 @@ export default function BookingManagement() {
                             <p className="text-white/60 text-sm font-medium">Theo dõi và điều phối lịch thực hiện dịch vụ.</p>
                         </div>
 
+                  
+
                         {timeFilter !== 'all' && (
                             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md p-2 px-4 rounded-2xl border border-white/10 shadow-lg">
                                 <span className="text-xs font-bold text-white/60 uppercase tracking-wider">Thời gian:</span>
@@ -122,8 +124,8 @@ export default function BookingManagement() {
                                         key={tab.id}
                                         onClick={() => setters.setActiveTab(tab.id as BookingStatus | 'all')}
                                         className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap uppercase tracking-wide ${activeTab === tab.id
-                                                ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/40'
-                                                : 'text-white/60 hover:text-white hover:bg-white/10'
+                                            ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/40'
+                                            : 'text-white/60 hover:text-white hover:bg-white/10'
                                             }`}
                                     >
                                         {tab.label}
@@ -139,8 +141,8 @@ export default function BookingManagement() {
                                             key={id}
                                             onClick={() => setters.setTimeFilter(id as TimeFilter)}
                                             className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all uppercase ${timeFilter === id
-                                                    ? 'bg-white/20 text-white shadow-sm'
-                                                    : 'text-white/50 hover:text-white hover:bg-white/5'
+                                                ? 'bg-white/20 text-white shadow-sm'
+                                                : 'text-white/50 hover:text-white hover:bg-white/5'
                                                 }`}
                                         >
                                             {id === 'all' ? 'Tất cả' : id === 'today' ? 'Ngày' : id === 'month' ? 'Tháng' : 'Năm'}

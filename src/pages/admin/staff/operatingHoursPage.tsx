@@ -93,8 +93,9 @@ export default function OperatingHoursPage() {
                             <Store className="w-6 h-6" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-white tracking-tight">Cấu hình giờ mở cửa</h1>
-                            <p className="text-sm text-white/60 font-medium">Quản lý các ca làm việc trong ngày</p>
+                            <h1 className="text-3xl font-bold text-white tracking-tight">Cấu hình giờ mở cửa</h1>
+                            <p className="text-sm text-white/60 font-medium">Quản lý các ca làm việc trong ngày.</p>
+
                         </div>
                     </div>
                     <div className="flex items-center gap-3">

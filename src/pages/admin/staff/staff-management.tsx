@@ -115,6 +115,9 @@ export default function StaffManagement() {
                             <h1 className="text-3xl font-bold text-white tracking-tight">Đội ngũ nhân viên</h1>
                             <p className="text-white/60 text-sm font-medium mt-1">Quản lý hồ sơ và hiệu suất làm việc.</p>
                         </div>
+
+
+
                         <button
                             onClick={openAddModal}
                             className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-emerald-500/30 transition-all active:scale-95"

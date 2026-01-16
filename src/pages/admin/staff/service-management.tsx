@@ -107,7 +107,8 @@ export default function ServiceManagement() {
                 {/* Header Section (Transparent) */}
                 <header className="h-20 bg-transparent border-b border-white/10 px-8 flex items-center justify-between z-10 backdrop-blur-sm">
                     <div className="flex items-center gap-4">
-                        <h1 className="text-xl font-bold text-white tracking-tight">Danh mục Dịch vụ</h1>
+                        <h1 className="text-3xl font-bold text-white tracking-tight">Danh mục dịch vụ</h1>
+
                         <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] rounded-full font-bold border border-emerald-500/30 uppercase tracking-wider">
                             {displayedServices.length} mục
                         </span>
@@ -203,7 +204,7 @@ export default function ServiceManagement() {
                                     <div className="flex items-center justify-between pt-4 border-t border-white/10 mt-auto">
                                         <div className="flex flex-col">
                                             <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Giá dịch vụ</span>
-                                            <span className="text-lg font-black text-emerald-400 tracking-tight">{service.price.toLocaleString()}đ</span>
+                                            <span className="text-lg font-black text-emerald-400 tracking-tight">{service.price.toLocaleString()}$</span>
                                         </div>
                                     </div>
                                 </div>

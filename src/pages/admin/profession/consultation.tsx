@@ -219,9 +219,12 @@ const ConsultationKanban: React.FC = () => {
             <div className="flex-1 flex flex-col min-w-0 h-full relative z-10 scrollbar-hide">
                 <header className="h-20 flex justify-between items-center px-8 border-b border-white/10 bg-slate-900/40 backdrop-blur-md shadow-sm z-10">
                     <div className="text-left">
-                        <h2 className="text-xl font-black text-white uppercase tracking-tight leading-none italic">QUY TRÌNH TƯ VẤN</h2>
-                        <p className="text-white/60 text-xs font-medium mt-1.5 uppercase tracking-widest opacity-70">Pipeline Management</p>
+
+                        <h1 className="text-3xl font-bold text-white mb-1 tracking-tight">Quy trình tư vấn</h1>
+                        <p className="text-white/60 text-sm font-medium">Theo dõi quá trình tư vấn.</p>
                     </div>
+
+
                     {/* BUTTON MỞ MODAL */}
                     <button
                         onClick={() => setIsCreateModalOpen(true)}

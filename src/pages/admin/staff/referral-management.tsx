@@ -52,9 +52,10 @@ const ReferralManagement = () => {
                 {/* Header trong suốt */}
                 <header className="bg-transparent border-b border-white/10 px-8 py-5 flex justify-between items-center flex-shrink-0 backdrop-blur-sm">
                     <div>
-                        <h1 className="text-xl font-bold tracking-tight text-white uppercase">Cấu hình chiết khấu hệ thống</h1>
-                        <p className="text-xs text-white/60 mt-0.5 italic font-medium">Thiết lập tỷ lệ hoa hồng cho nhân sự và đối tác</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-white ">Cấu hình chiết khấu hệ thống</h1>
+                        <p className="text-sm text-white/60 mt-0.5 italic font-medium">Thiết lập tỷ lệ hoa hồng cho nhân sự và đối tác.</p>
                     </div>
+
                     <button
                         onClick={handleUpdateSystem}
                         className="bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs transition-all uppercase tracking-widest shadow-lg active:scale-95 border border-white/20 backdrop-blur-md"

@@ -52,10 +52,11 @@ export default function ConsultationManagement() {
                     {/* Header */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
-                            <h1 className="text-2xl font-bold text-white tracking-tight">Quản lý Tư vấn</h1>
-                            <p className="text-slate-400 text-sm mt-1">Theo dõi và chăm sóc khách hàng tiềm năng</p>
+                            <h1 className="text-3xl font-bold text-white mb-1 tracking-tight">Quản lý tư vấn</h1>
+                            <p className="text-white/60 text-sm font-medium">Theo dõi và chăm sóc khách hàng tiềm năng.</p>
                         </div>
                     </div>
+
 
                     {/* Filter & Search Bar - Glass Effect */}
                     <div className="bg-white/5 backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-white/10 flex flex-wrap gap-4 items-center">

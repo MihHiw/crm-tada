@@ -218,9 +218,10 @@ export default function PromotionManagement() {
                 {/* Header */}
                 <header className="bg-transparent border-b border-white/10 px-8 py-5 flex justify-between items-center z-10 backdrop-blur-sm">
                     <div>
-                        <h1 className="text-2xl font-bold text-white tracking-tight">Chiến dịch Khuyến mãi</h1>
+                        <h1 className="text-2xl font-bold text-white tracking-tight">Chiến dịch khuyến mãi</h1>
                         <p className="text-xs text-white/60 font-medium">Cấu hình mã giảm giá theo loại hình và thời gian.</p>
                     </div>
+
                     <button
                         onClick={handleOpenCreate}
                         className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg flex items-center gap-2 transition-all active:scale-95 backdrop-blur-md"

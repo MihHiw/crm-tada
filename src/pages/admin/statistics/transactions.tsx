@@ -10,7 +10,6 @@ import {
     CreditCard, // ✅ Sử dụng cho thanh toán dịch vụ
     Filter,
     Search,
-    Wallet
 } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -115,13 +114,14 @@ export default function TransactionsPage() {
 
                     {/* Header Section */}
                     <div className="flex flex-col md:flex-row justify-between items-end gap-4">
+
                         <div>
-                            <h1 className="text-3xl font-bold text-white tracking-tight">Lịch sử giao dịch</h1>
-                            <p className="text-slate-400 mt-2 flex items-center gap-2">
-                                <Wallet size={16} className="text-indigo-400" />
+                            <h1 className="text-3xl font-bold text-white mb-1 tracking-tight">Lịch sử giao dịch</h1>
+                            <p className="text-white/60 text-sm font-medium">
                                 Quản lý dòng tiền, nạp rút và thanh toán dịch vụ.
                             </p>
                         </div>
+
                         <div className="flex gap-3">
                             <div className="px-4 py-2 bg-slate-800/40 backdrop-blur-md border border-white/10 rounded-xl flex items-center gap-2 shadow-sm">
                                 <span className="text-slate-400 text-xs uppercase font-bold tracking-wider">Tổng giao dịch</span>

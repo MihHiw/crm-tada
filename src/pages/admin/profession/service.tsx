@@ -69,10 +69,9 @@ export default function ServicePage() {
             <main className="flex-1 flex flex-col min-w-0 h-full relative z-10 scrollbar-hide overflow-y-auto">
                 <div className="w-full max-w-5xl mx-auto p-6 md:p-10 space-y-8">
 
-                    {/* Header đơn giản */}
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-white tracking-tight">Mua gói dịch vụ</h1>
-                        <p className="text-white/60 text-sm mt-1">Chọn dịch vụ và số lượng buổi bạn muốn mua.</p>
+                    <div>
+                        <h1 className="text-3xl font-bold text-white mb-1 tracking-tight">Mua gói dịch vụ</h1>
+                        <p className="text-white/60 text-sm font-medium">Chọn dịch vụ và số lượng buổi bạn muốn mua.</p>
                     </div>
 
                     {/* THANH TIẾN TRÌNH (STEPPER) - Glass Style */}
@@ -127,7 +126,7 @@ export default function ServicePage() {
                                                     {service.name}
                                                 </h3>
                                                 <p className="text-xl font-bold text-white tracking-tight">
-                                                    {service.price.toLocaleString()}đ
+                                                    {service.price.toLocaleString()}$
                                                     <span className="text-sm font-normal text-white/50 ml-1">/ buổi</span>
                                                 </p>
                                                 <div className="flex items-center gap-2 text-white/50 text-xs font-bold uppercase tracking-wide">
@@ -189,11 +188,11 @@ export default function ServicePage() {
                                 <div className="w-full bg-black/20 rounded-2xl p-5 border border-white/5 mb-8">
                                     <div className="flex justify-between items-center text-sm mb-2">
                                         <span className="text-white/60">Đơn giá:</span>
-                                        <span className="font-bold text-white">{booking.selectedService.price.toLocaleString()}đ</span>
+                                        <span className="font-bold text-white">{booking.selectedService.price.toLocaleString()}$</span>
                                     </div>
                                     <div className="flex justify-between items-center text-lg font-bold text-rose-400 border-t border-white/10 pt-2 mt-2">
                                         <span>Thành tiền:</span>
-                                        <span className="text-2xl">{booking.totalAmount.toLocaleString()}đ</span>
+                                        <span className="text-2xl">{booking.totalAmount.toLocaleString()}$</span>
                                     </div>
                                 </div>
 
@@ -229,9 +228,9 @@ export default function ServicePage() {
                                     </div>
                                     <div className="flex justify-between items-center pt-2">
                                         <span className="text-white/60 text-sm">Tổng thanh toán</span>
-                                        <span className="text-3xl font-black text-rose-400">{booking.totalAmount?.toLocaleString() ?? "0"}đ</span>
+                                        <span className="text-3xl font-black text-rose-400">{booking.totalAmount?.toLocaleString() ?? "0"}$</span>
                                     </div>
-                                    <p className="text-right text-xs text-white/40 italic">Số dư ví khả dụng: <span className="text-emerald-400 font-bold">{user.balance?.toLocaleString() ?? "0"}đ</span></p>
+                                    <p className="text-right text-xs text-white/40 italic">Số dư ví khả dụng: <span className="text-emerald-400 font-bold">{user.balance?.toLocaleString() ?? "0"}$</span></p>
                                 </div>
 
                                 {!booking.hasEnoughBalance && (

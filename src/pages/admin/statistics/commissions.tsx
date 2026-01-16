@@ -93,9 +93,10 @@ export default function CommissionPage() {
                     {/* Header */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-white tracking-tight mb-1">Quản lý Hoa hồng</h1>
-                            <p className="text-sm text-slate-400 font-medium">Theo dõi doanh thu và quyết toán cho nhân sự hệ thống</p>
+                            <h1 className="text-3xl font-bold text-white tracking-tight mb-1">Quản Lý hoa hồng</h1>
+                            <p className="text-sm text-slate-400 font-medium">Theo dõi doanh thu và quyết toán cho nhân sự hệ thống.</p>
                         </div>
+
                         <button
                             onClick={exportToExcel}
                             className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-white/20 shadow-lg transition-all text-sm font-semibold text-white backdrop-blur-md group"
