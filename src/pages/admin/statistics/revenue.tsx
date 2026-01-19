@@ -82,14 +82,12 @@ export default function AnalyticsDashboard() {
         <div className="flex h-screen w-full bg-transparent overflow-hidden relative text-slate-200">
             <GlobalBackground />
 
-            <aside className="w-[280px] flex-shrink-0 bg-slate-950/20 backdrop-blur-3xl border-r border-white/10 z-50 shadow-2xl">
+            <aside className="w-[260px] flex-shrink-0 bg-slate-950/20 backdrop-blur-3xl border-r border-white/10 z-50 shadow-2xl">
                 <Sidebar />
             </aside>
 
-            {/* FIX 1: Giảm padding p-8 xuống p-6 để đỡ khoảng trống bên trái */}
             <main className="flex-1 overflow-y-auto p-6 custom-scrollbar z-10 relative">
 
-                {/* FIX 2: Đổi mx-auto (căn giữa) thành mr-auto (căn trái) */}
                 <div className="max-w-7xl mr-auto">
 
                     {/* Header */}

@@ -133,7 +133,7 @@ export const Sidebar = () => {
     const displayRoleName = mockRoles.find(r => r.id === currentUser?.role_id)?.name || "Người dùng";
 
     return (
-        <aside className="w-64 bg-[#0f172a] text-white flex flex-col fixed h-full z-20 shadow-xl border-r border-[#1e293b] font-sans transition-all duration-300">
+        <aside className="w-[260px] bg-[#0f172a] text-white flex flex-col fixed h-full z-20 shadow-xl border-r border-[#1e293b] font-sans transition-all duration-300">
 
             {/* Phần Logo */}
             <div className="h-20 flex flex-col items-center justify-center border-b border-[#1e293b] relative overflow-hidden flex-shrink-0">
