@@ -106,8 +106,11 @@ export default function StaffManagement() {
                 <Sidebar />
             </div>
 
-            <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 scrollbar-hide">
-                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-8">
+            {/* FIX: Cấu trúc Main để hỗ trợ cuộn và căn trái */}
+            <main className="flex-1 h-full overflow-y-auto relative z-10 scrollbar-hide">
+
+                {/* FIX: Container căn trái (mr-auto) và giảm padding (p-6) */}
+                <div className="w-full max-w-[1600px] mr-auto p-6 space-y-8">
 
                     {/* Header */}
                     <div className="flex justify-between items-end">
@@ -115,9 +118,6 @@ export default function StaffManagement() {
                             <h1 className="text-3xl font-bold text-white tracking-tight">Đội ngũ nhân viên</h1>
                             <p className="text-white/60 text-sm font-medium mt-1">Quản lý hồ sơ và hiệu suất làm việc.</p>
                         </div>
-
-
-
                         <button
                             onClick={openAddModal}
                             className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-emerald-500/30 transition-all active:scale-95"
@@ -175,9 +175,9 @@ export default function StaffManagement() {
                                 </select>
                             </div>
 
-                            <div className="flex-1 overflow-x-auto">
+                            <div className="flex-1 overflow-x-auto custom-scrollbar">
                                 <table className="w-full text-left">
-                                    <thead className="bg-[#0f172a]/80 text-[10px] font-black text-white/50 uppercase tracking-widest border-b border-white/10 backdrop-blur-md">
+                                    <thead className="bg-[#0f172a]/80 text-[10px] font-black text-white/50 uppercase tracking-widest border-b border-white/10 backdrop-blur-md sticky top-0 z-10">
                                         <tr>
                                             <th className="px-6 py-5">Nhân viên</th>
                                             <th className="py-5">Vai trò</th>

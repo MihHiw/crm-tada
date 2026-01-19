@@ -36,19 +36,30 @@ export default function ConsultationManagement() {
     });
 
     if (loading) return (
-        <div className="flex h-screen w-full items-center justify-center bg-slate-900">
-            <div className="animate-spin rounded-full h-10 w-10 border-4 border-indigo-500 border-t-transparent"></div>
+        <div className="flex h-screen w-full items-center justify-center bg-slate-900 text-slate-300">
+            <div className="flex flex-col items-center gap-3">
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-indigo-500 border-t-transparent"></div>
+                <p className="text-sm font-medium animate-pulse">Đang tải dữ liệu...</p>
+            </div>
         </div>
     );
 
     return (
-        <div className="flex min-h-screen font-sans text-slate-200">
-            {/* Background giữ nguyên */}
+        // FIX: Layout h-screen overflow-hidden để cố định sidebar
+        <div className="flex h-screen w-full overflow-hidden font-sans text-slate-200">
             <GlobalBackground />
 
-            <Sidebar />
-            <div className="flex-1 lg:ml-64 transition-all duration-300 relative z-10">
-                <main className="p-6 md:p-8 max-w-[1600px] mx-auto space-y-6">
+            {/* Sidebar Container */}
+            <div className="w-[260px] flex-shrink-0 h-full border-r border-white/10 bg-slate-900/60 backdrop-blur-xl z-20">
+                <Sidebar />
+            </div>
+
+            {/* Main Content Area */}
+            <main className="flex-1 h-full overflow-y-auto relative z-10 scrollbar-hide">
+                
+                {/* FIX: Container căn trái (mr-auto) và padding (p-6) */}
+                <div className="w-full max-w-[1600px] mr-auto p-6 space-y-8">
+                    
                     {/* Header */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
@@ -57,8 +68,7 @@ export default function ConsultationManagement() {
                         </div>
                     </div>
 
-
-                    {/* Filter & Search Bar - Glass Effect */}
+                    {/* Filter & Search Bar */}
                     <div className="bg-white/5 backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-white/10 flex flex-wrap gap-4 items-center">
                         <div className="relative flex-1 min-w-[300px]">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -72,7 +82,7 @@ export default function ConsultationManagement() {
                         </div>
                         <div className="flex items-center gap-2 bg-slate-900/50 p-1 rounded-xl border border-white/5">
                             <select
-                                className="bg-transparent text-sm font-medium px-3 py-1.5 outline-none text-slate-300 [&>option]:bg-slate-900 [&>option]:text-slate-200"
+                                className="bg-transparent text-sm font-medium px-3 py-1.5 outline-none text-slate-300 cursor-pointer [&>option]:bg-slate-900 [&>option]:text-slate-200"
                                 value={filterStatus}
                                 onChange={(e) => setFilterStatus(e.target.value as ConsultationStatus | 'ALL')}
                             >
@@ -84,11 +94,11 @@ export default function ConsultationManagement() {
                         </div>
                     </div>
 
-                    {/* Table Container - Glass Effect */}
-                    <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 overflow-hidden">
-                        <div className="overflow-x-auto">
+                    {/* Table Container */}
+                    <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/10 overflow-hidden flex flex-col min-h-[500px]">
+                        <div className="overflow-x-auto flex-1 custom-scrollbar">
                             <table className="w-full text-left border-collapse">
-                                <thead className="bg-white/5 border-b border-white/10">
+                                <thead className="bg-white/5 border-b border-white/10 sticky top-0 z-10 backdrop-blur-md">
                                     <tr className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                                         <th className="px-8 py-5">Khách hàng</th>
                                         <th className="px-6 py-5">Nội dung tư vấn</th>
@@ -109,14 +119,24 @@ export default function ConsultationManagement() {
                                 </tbody>
                             </table>
                             {filteredData.length === 0 && (
-                                <div className="text-center py-10 text-slate-500 italic">
-                                    Không tìm thấy dữ liệu nào phù hợp.
+                                <div className="text-center py-20 text-slate-500 italic">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <Search size={32} className="opacity-50" />
+                                        <p>Không tìm thấy dữ liệu nào phù hợp.</p>
+                                    </div>
                                 </div>
                             )}
                         </div>
                     </div>
-                </main>
-            </div>
+                </div>
+            </main>
+
+            <style jsx global>{`
+                .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+            `}</style>
         </div>
     );
 }
@@ -152,13 +172,13 @@ function ConsultationRow({ item, onUpdateStatus, onDelete }: RowProps) {
                 </div>
             </td>
             <td className="px-6 py-5">
-                <div className="max-w-[250px]">
+                <div className="max-w-[300px]">
                     <p className="text-slate-300 line-clamp-2 italic text-xs leading-relaxed opacity-90">
                         &#8220;{item.description || 'Yêu cầu tư vấn dịch vụ...'}&#8221;
                     </p>
                     {item.history.length > 0 && (
                         <p className="text-[10px] text-indigo-300 font-bold mt-2 uppercase tracking-wide flex items-center gap-1">
-                            <span className="w-1 h-1 bg-indigo-400 rounded-full inline-block"></span>
+                            <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full inline-block animate-pulse"></span>
                             Note: {item.history[0].note}
                         </p>
                     )}
@@ -170,7 +190,7 @@ function ConsultationRow({ item, onUpdateStatus, onDelete }: RowProps) {
             </td>
             <td className="px-6 py-5 text-center">
                 <select
-                    className={`text-[11px] font-bold px-3 py-1.5 rounded-full border outline-none transition-all cursor-pointer appearance-none text-center min-w-[120px] [&>option]:bg-slate-900 [&>option]:text-slate-200 ${statusInfo.color}`}
+                    className={`text-[11px] font-bold px-3 py-1.5 rounded-full border outline-none transition-all cursor-pointer appearance-none text-center min-w-[130px] [&>option]:bg-slate-900 [&>option]:text-slate-200 ${statusInfo.color}`}
                     value={item.status}
                     onChange={(e) => {
                         const note = window.prompt("Nhập ghi chú phản hồi:");
@@ -183,7 +203,7 @@ function ConsultationRow({ item, onUpdateStatus, onDelete }: RowProps) {
                 </select>
             </td>
             <td className="px-8 py-5 text-right">
-                <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                     <button className="p-2 hover:bg-white/10 text-slate-400 hover:text-white rounded-lg transition-colors" title="Chỉnh sửa">
                         <Edit2 size={16} />
                     </button>

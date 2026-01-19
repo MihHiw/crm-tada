@@ -92,7 +92,6 @@ export default function ServiceManagement() {
     };
 
     return (
-        // ROOT: Dark Mode + Glass
         <div className="flex h-screen overflow-hidden font-sans text-white">
             <GlobalBackground />
             <Head><title>Dịch vụ & Sản phẩm | Quản trị CRM</title></Head>
@@ -102,134 +101,140 @@ export default function ServiceManagement() {
                 <Sidebar />
             </div>
 
-            <main className="flex-1 flex flex-col min-w-0 transition-all relative z-10 scrollbar-hide">
+            <main className="flex-1 h-full overflow-y-auto relative z-10 scrollbar-hide">
+                
+                {/* FIX: Thêm 'min-h-full' để container luôn cao ít nhất bằng chiều cao màn hình */}
+                {/* FIX: Đổi 'space-y-8' thành 'gap-8' để hoạt động tốt hơn với flex grow */}
+                <div className="w-full max-w-[1600px] mr-auto p-6 flex flex-col min-h-full gap-8">
 
-                {/* Header Section (Transparent) */}
-                <header className="h-20 bg-transparent border-b border-white/10 px-8 flex items-center justify-between z-10 backdrop-blur-sm">
-                    <div className="flex items-center gap-4">
-                        <h1 className="text-3xl font-bold text-white tracking-tight">Danh mục dịch vụ</h1>
-
-                        <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] rounded-full font-bold border border-emerald-500/30 uppercase tracking-wider">
-                            {displayedServices.length} mục
-                        </span>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <div className="relative group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-emerald-400 transition-colors" size={16} />
-                            <input
-                                type="text"
-                                placeholder="Tìm theo tên dịch vụ..."
-                                className="h-10 w-64 pl-10 pr-4 bg-black/20 border border-white/10 rounded-xl text-sm text-white placeholder-white/30 outline-none focus:border-emerald-500/50 focus:bg-black/40 transition-all"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                    {/* Header Section */}
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
+                        <div className="flex items-center gap-4">
+                            <h1 className="text-3xl font-bold text-white tracking-tight">Danh mục dịch vụ</h1>
+                            <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] rounded-full font-bold border border-emerald-500/30 uppercase tracking-wider">
+                                {displayedServices.length} mục
+                            </span>
                         </div>
-                        <button
-                            onClick={handleAddNew}
-                            className="h-10 px-5 bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-emerald-600 transition-all active:scale-95 shadow-lg shadow-emerald-500/20"
-                        >
-                            <Plus size={16} /> Thêm mới
-                        </button>
-                    </div>
-                </header>
 
-                {/* Filter Tabs (Glass) */}
-                <div className="px-8 py-4 bg-black/20 border-b border-white/5 flex gap-2 overflow-x-auto no-scrollbar backdrop-blur-md">
-                    <button
-                        onClick={() => filterServices('all')}
-                        className={`px-5 py-2 rounded-full text-[11px] font-bold transition-all whitespace-nowrap border ${selectedCategory === 'all'
-                            ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg shadow-emerald-500/30'
-                            : 'bg-white/5 text-white/60 border-white/10 hover:text-white hover:bg-white/10'}`}
-                    >
-                        Tất cả
-                    </button>
-                    {categories.map((cat) => (
+                        <div className="flex items-center gap-4">
+                            <div className="relative group">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-emerald-400 transition-colors" size={16} />
+                                <input
+                                    type="text"
+                                    placeholder="Tìm theo tên dịch vụ..."
+                                    className="h-10 w-64 pl-10 pr-4 bg-black/20 border border-white/10 rounded-xl text-sm text-white placeholder-white/30 outline-none focus:border-emerald-500/50 focus:bg-black/40 transition-all"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            <button
+                                onClick={handleAddNew}
+                                className="h-10 px-5 bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-emerald-600 transition-all active:scale-95 shadow-lg shadow-emerald-500/20"
+                            >
+                                <Plus size={16} /> Thêm mới
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Filter Tabs */}
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar shrink-0">
                         <button
-                            key={cat.id}
-                            onClick={() => filterServices(cat.id)}
-                            className={`px-5 py-2 rounded-full text-[11px] font-bold transition-all whitespace-nowrap border ${selectedCategory == cat.id
+                            onClick={() => filterServices('all')}
+                            className={`px-5 py-2 rounded-full text-[11px] font-bold transition-all whitespace-nowrap border ${selectedCategory === 'all'
                                 ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg shadow-emerald-500/30'
                                 : 'bg-white/5 text-white/60 border-white/10 hover:text-white hover:bg-white/10'}`}
                         >
-                            {cat.name}
+                            Tất cả
                         </button>
-                    ))}
-                </div>
-
-                {/* Content Grid */}
-                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                    {isLoading ? (
-                        <div className="flex items-center justify-center h-full text-white/40 animate-pulse font-bold tracking-widest uppercase text-xs">Đang đồng bộ dữ liệu Spa...</div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {currentItems.map((service) => (
-                                <div key={service.id} className="bg-white/5 border border-white/10 rounded-[2rem] p-4 hover:bg-white/10 hover:border-white/20 hover:scale-[1.02] transition-all duration-300 group flex flex-col h-full relative overflow-hidden backdrop-blur-md shadow-lg">
-
-                                    {/* Image Wrapper */}
-                                    <div className="relative h-48 w-full bg-black/30 rounded-[1.5rem] mb-4 overflow-hidden border border-white/5">
-                                        <Image
-                                            src={service.imageUrl || 'https://placehold.co/400x300/1e293b/ffffff?text=Service'}
-                                            alt={service.name}
-                                            fill
-                                            className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                        />
-
-                                        {/* Category Badge */}
-                                        <div className="absolute top-3 left-3">
-                                            <span className="px-3 py-1 bg-black/60 backdrop-blur-md text-[9px] font-black uppercase rounded-full border border-white/10 text-white shadow-sm">
-                                                {service.categoryName}
-                                            </span>
-                                        </div>
-
-                                        {/* Action Buttons (Hidden) */}
-                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-sm">
-                                            <button onClick={() => handleEdit(service)} className="p-3 bg-white text-slate-900 rounded-2xl hover:scale-110 transition-transform shadow-xl"><Edit3 size={18} /></button>
-                                            <button onClick={() => handleDelete(service.id)} className="p-3 bg-rose-500 text-white rounded-2xl hover:scale-110 transition-transform shadow-xl"><Trash2 size={18} /></button>
-                                        </div>
-                                    </div>
-
-                                    {/* Content */}
-                                    <div className="flex-1 px-1">
-                                        <h3 className="text-sm font-black text-white line-clamp-2 mb-2 min-h-[40px] uppercase tracking-tight leading-snug group-hover:text-emerald-300 transition-colors">
-                                            {service.name}
-                                        </h3>
-                                        <p className="text-[10px] text-white/50 line-clamp-2 leading-relaxed mb-4 font-medium">
-                                            {service.description || "Liệu trình chăm sóc da chuyên sâu tại Vanilla Spa."}
-                                        </p>
-                                    </div>
-
-                                    {/* Footer Price & Duration */}
-                                    <div className="flex items-center justify-between pt-4 border-t border-white/10 mt-auto">
-                                        <div className="flex flex-col">
-                                            <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Giá dịch vụ</span>
-                                            <span className="text-lg font-black text-emerald-400 tracking-tight">{service.price.toLocaleString()}$</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Pagination (Glass Footer) */}
-                <footer className="h-16 bg-black/20 border-t border-white/5 px-8 flex items-center justify-between z-10 backdrop-blur-md">
-                    <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Trang {currentPage} / {totalPages || 1}</div>
-                    <div className="flex gap-2">
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        {categories.map((cat) => (
                             <button
-                                key={page}
-                                onClick={() => setCurrentPage(page)}
-                                className={`w-8 h-8 rounded-xl font-bold text-[10px] transition-all shadow-sm ${currentPage === page
-                                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                                    : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white'}`}
+                                key={cat.id}
+                                onClick={() => filterServices(cat.id)}
+                                className={`px-5 py-2 rounded-full text-[11px] font-bold transition-all whitespace-nowrap border ${selectedCategory == cat.id
+                                    ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg shadow-emerald-500/30'
+                                    : 'bg-white/5 text-white/60 border-white/10 hover:text-white hover:bg-white/10'}`}
                             >
-                                {page}
+                                {cat.name}
                             </button>
                         ))}
                     </div>
-                </footer>
+
+                    {/* Content Grid */}
+                    {/* FIX: Thêm 'flex-1' để vùng này chiếm hết khoảng trống còn lại, đẩy pagination xuống dưới */}
+                    <div className="flex-1">
+                        {isLoading ? (
+                            <div className="flex items-center justify-center h-64 text-white/40 animate-pulse font-bold tracking-widest uppercase text-xs">Đang đồng bộ dữ liệu Spa...</div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {currentItems.map((service) => (
+                                    <div key={service.id} className="bg-white/5 border border-white/10 rounded-[2rem] p-4 hover:bg-white/10 hover:border-white/20 hover:scale-[1.02] transition-all duration-300 group flex flex-col h-full relative overflow-hidden backdrop-blur-md shadow-lg">
+                                        {/* Image Wrapper */}
+                                        <div className="relative h-48 w-full bg-black/30 rounded-[1.5rem] mb-4 overflow-hidden border border-white/5">
+                                            <Image
+                                                src={service.imageUrl || 'https://placehold.co/400x300/1e293b/ffffff?text=Service'}
+                                                alt={service.name}
+                                                fill
+                                                className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                            />
+                                            {/* Category Badge */}
+                                            <div className="absolute top-3 left-3">
+                                                <span className="px-3 py-1 bg-black/60 backdrop-blur-md text-[9px] font-black uppercase rounded-full border border-white/10 text-white shadow-sm">
+                                                    {service.categoryName}
+                                                </span>
+                                            </div>
+                                            {/* Action Buttons */}
+                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-sm">
+                                                <button onClick={() => handleEdit(service)} className="p-3 bg-white text-slate-900 rounded-2xl hover:scale-110 transition-transform shadow-xl"><Edit3 size={18} /></button>
+                                                <button onClick={() => handleDelete(service.id)} className="p-3 bg-rose-500 text-white rounded-2xl hover:scale-110 transition-transform shadow-xl"><Trash2 size={18} /></button>
+                                            </div>
+                                        </div>
+
+                                        {/* Content */}
+                                        <div className="flex-1 px-1">
+                                            <h3 className="text-sm font-black text-white line-clamp-2 mb-2 min-h-[40px] uppercase tracking-tight leading-snug group-hover:text-emerald-300 transition-colors">
+                                                {service.name}
+                                            </h3>
+                                            <p className="text-[10px] text-white/50 line-clamp-2 leading-relaxed mb-4 font-medium">
+                                                {service.description || "Liệu trình chăm sóc da chuyên sâu tại Vanilla Spa."}
+                                            </p>
+                                        </div>
+
+                                        {/* Footer Price & Duration */}
+                                        <div className="flex items-center justify-between pt-4 border-t border-white/10 mt-auto">
+                                            <div className="flex flex-col">
+                                                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Giá dịch vụ</span>
+                                                <span className="text-lg font-black text-emerald-400 tracking-tight">{service.price.toLocaleString()}$</span>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5 block">Thời gian</span>
+                                                <span className="text-xs font-bold text-white">{service.durationMin} phút</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Pagination - FIX: Thêm 'mt-auto' để chắc chắn nó nằm dưới cùng */}
+                    <div className="h-16 bg-black/20 border border-white/5 rounded-2xl px-8 flex items-center justify-between backdrop-blur-md mt-auto shrink-0">
+                        <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Trang {currentPage} / {totalPages || 1}</div>
+                        <div className="flex gap-2">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`w-8 h-8 rounded-xl font-bold text-[10px] transition-all shadow-sm ${currentPage === page
+                                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
+                                        : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white'}`}
+                                >
+                                    {page}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </main>
 
             {/* Form Drawer (Dark Glass Modal) */}

@@ -216,73 +216,77 @@ const ConsultationKanban: React.FC = () => {
                 <Sidebar />
             </div>
 
-            <div className="flex-1 flex flex-col min-w-0 h-full relative z-10 scrollbar-hide">
-                <header className="h-20 flex justify-between items-center px-8 border-b border-white/10 bg-slate-900/40 backdrop-blur-md shadow-sm z-10">
-                    <div className="text-left">
+            {/* FIX: Container chính căn trái và giới hạn chiều rộng */}
+            <div className="flex-1 flex flex-col min-w-0 h-full relative z-10 scrollbar-hide overflow-hidden">
+                <div className="w-full max-w-[1600px] mr-auto h-full flex flex-col">
 
-                        <h1 className="text-3xl font-bold text-white mb-1 tracking-tight">Quy trình tư vấn</h1>
-                        <p className="text-white/60 text-sm font-medium">Theo dõi quá trình tư vấn.</p>
-                    </div>
-
-
-                    {/* BUTTON MỞ MODAL */}
-                    <button
-                        onClick={() => setIsCreateModalOpen(true)}
-                        className="flex items-center gap-2 bg-[#A33446] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-[#A33446]/30 hover:scale-105 active:scale-95 transition-all"
-                    >
-                        <Plus size={18} /> Thêm khách mới
-                    </button>
-                </header>
-
-                <main className="flex-1 overflow-x-auto p-6 flex gap-6 custom-scrollbar">
-                    {loading ? (
-                        <div className="w-full h-full flex items-center justify-center gap-3">
-                            <div className="w-2 h-2 bg-white rounded-full animate-bounce" />
-                            <div className="w-2 h-2 bg-white rounded-full animate-bounce [animation-delay:0.2s]" />
-                            <div className="w-2 h-2 bg-white rounded-full animate-bounce [animation-delay:0.4s]" />
+                    {/* Header - FIX: px-6 để đồng bộ với main */}
+                    <header className="h-20 shrink-0 flex justify-between items-center px-6 border-b border-white/10 bg-slate-900/40 backdrop-blur-md shadow-sm z-10">
+                        <div className="text-left">
+                            <h1 className="text-3xl font-bold text-white mb-1 tracking-tight">Quy trình tư vấn</h1>
+                            <p className="text-white/60 text-sm font-medium">Theo dõi quá trình tư vấn.</p>
                         </div>
-                    ) : (
-                        (Object.keys(KANBAN_COLUMNS) as ConsultationStatus[]).map((key) => {
-                            const config = KANBAN_COLUMNS[key];
-                            const ColumnIcon = config.icon;
-                            const columnData = columns[key] || [];
 
-                            return (
-                                <section key={key} className="w-[320px] shrink-0 flex flex-col h-full bg-black/20 backdrop-blur-sm rounded-3xl border border-white/5 shadow-inner overflow-hidden">
-                                    <div className="p-5 flex items-center justify-between flex-shrink-0">
-                                        <div className="flex items-center gap-2.5">
-                                            <div className={`p-1.5 rounded-lg ${config.bg} ${config.color}`}>
-                                                <ColumnIcon size={16} />
+                        {/* BUTTON MỞ MODAL */}
+                        <button
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="flex items-center gap-2 bg-[#A33446] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-[#A33446]/30 hover:scale-105 active:scale-95 transition-all"
+                        >
+                            <Plus size={18} /> Thêm khách mới
+                        </button>
+                    </header>
+
+                    {/* Main Kanban - FIX: p-6 để đồng bộ */}
+                    <main className="flex-1 overflow-x-auto overflow-y-hidden p-6 flex gap-6 custom-scrollbar">
+                        {loading ? (
+                            <div className="w-full h-full flex items-center justify-center gap-3">
+                                <div className="w-2 h-2 bg-white rounded-full animate-bounce" />
+                                <div className="w-2 h-2 bg-white rounded-full animate-bounce [animation-delay:0.2s]" />
+                                <div className="w-2 h-2 bg-white rounded-full animate-bounce [animation-delay:0.4s]" />
+                            </div>
+                        ) : (
+                            (Object.keys(KANBAN_COLUMNS) as ConsultationStatus[]).map((key) => {
+                                const config = KANBAN_COLUMNS[key];
+                                const ColumnIcon = config.icon;
+                                const columnData = columns[key] || [];
+
+                                return (
+                                    <section key={key} className="w-[320px] shrink-0 flex flex-col h-full bg-black/20 backdrop-blur-sm rounded-3xl border border-white/5 shadow-inner overflow-hidden">
+                                        <div className="p-5 flex items-center justify-between flex-shrink-0">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className={`p-1.5 rounded-lg ${config.bg} ${config.color}`}>
+                                                    <ColumnIcon size={16} />
+                                                </div>
+                                                <h3 className="font-bold text-white text-sm tracking-tight">{config.label}</h3>
                                             </div>
-                                            <h3 className="font-bold text-white text-sm tracking-tight">{config.label}</h3>
+                                            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-white/10 border border-white/10 text-white/70 shadow-sm">
+                                                {columnData.length}
+                                            </span>
                                         </div>
-                                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-white/10 border border-white/10 text-white/70 shadow-sm">
-                                            {columnData.length}
-                                        </span>
-                                    </div>
 
-                                    <div className="flex-1 overflow-y-auto px-4 pb-4 custom-scrollbar space-y-1">
-                                        {columnData.map(renderCard)}
-                                        {columnData.length === 0 && (
-                                            <div className="py-10 text-center border-2 border-dashed border-white/10 rounded-2xl bg-white/5">
-                                                <p className="text-[10px] font-bold text-white/20 uppercase italic tracking-widest">Trống</p>
-                                            </div>
-                                        )}
-                                        {/* Nút thêm nhanh ở cuối cột Tiếp nhận */}
-                                        {key === 'PENDING' && (
-                                            <button
-                                                onClick={() => setIsCreateModalOpen(true)}
-                                                className="w-full py-4 border border-dashed border-white/10 rounded-2xl text-white/30 text-[10px] font-black hover:border-[#A33446] hover:text-[#A33446] hover:bg-white/5 transition-all mt-2 uppercase tracking-tighter"
-                                            >
-                                                + THÊM HỒ SƠ TƯ VẤN
-                                            </button>
-                                        )}
-                                    </div>
-                                </section>
-                            );
-                        })
-                    )}
-                </main>
+                                        <div className="flex-1 overflow-y-auto px-4 pb-4 custom-scrollbar space-y-1">
+                                            {columnData.map(renderCard)}
+                                            {columnData.length === 0 && (
+                                                <div className="py-10 text-center border-2 border-dashed border-white/10 rounded-2xl bg-white/5">
+                                                    <p className="text-[10px] font-bold text-white/20 uppercase italic tracking-widest">Trống</p>
+                                                </div>
+                                            )}
+                                            {/* Nút thêm nhanh ở cuối cột Tiếp nhận */}
+                                            {key === 'PENDING' && (
+                                                <button
+                                                    onClick={() => setIsCreateModalOpen(true)}
+                                                    className="w-full py-4 border border-dashed border-white/10 rounded-2xl text-white/30 text-[10px] font-black hover:border-[#A33446] hover:text-[#A33446] hover:bg-white/5 transition-all mt-2 uppercase tracking-tighter"
+                                                >
+                                                    + THÊM HỒ SƠ TƯ VẤN
+                                                </button>
+                                            )}
+                                        </div>
+                                    </section>
+                                );
+                            })
+                        )}
+                    </main>
+                </div>
             </div>
 
             {/* CÁC MODAL */}

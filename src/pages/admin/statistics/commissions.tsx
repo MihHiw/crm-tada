@@ -88,7 +88,8 @@ export default function CommissionPage() {
             </div>
 
             <main className="flex-1 h-full overflow-y-auto relative z-10 scrollbar-hide">
-                <div className="max-w-[1400px] mx-auto p-6 md:p-10 space-y-8">
+                {/* FIX: Đổi mx-auto thành mr-auto và giảm padding để kéo nội dung sang trái */}
+                <div className="max-w-[1400px] mr-auto p-6 space-y-8">
 
                     {/* Header */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

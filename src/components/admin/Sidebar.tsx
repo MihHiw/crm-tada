@@ -6,7 +6,6 @@ import { User } from '@/types/types';
 import {
     ArrowLeftRight,
     BadgePercent,
-    CalendarDays,
     ChevronRight,
     ClipboardList,
     Clock,
@@ -35,7 +34,6 @@ const MENU_GROUPS = [
             { icon: Wallet, label: "Doanh thu & Tài chính", href: "/admin/statistics/revenue", roleIds: [ROLES.ADMIN] },
             { icon: ArrowLeftRight, label: "Quản lý Nạp & Rút", href: "/admin/statistics/transactions", roleIds: [ROLES.ADMIN] },
             { icon: LayoutDashboard, label: "Thống kê dịch vụ", href: "/admin/statistics/appointmentTable", roleIds: [ROLES.ADMIN, ROLES.MANAGER] },
-            { icon: UserCog, label: "Tổng hợp hoa hồng", href: "/admin/statistics/commissions", roleIds: [ROLES.ADMIN] },
         ]
     },
     {
@@ -51,7 +49,6 @@ const MENU_GROUPS = [
         roleIds: [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF],
         items: [
             { icon: UsersRound, label: "Khách hàng", href: "/admin/staff/customers", roleIds: [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF] },
-            { icon: CalendarDays, label: "Lịch hẹn", href: "/admin/staff/booking-management", roleIds: [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF] },
             { icon: Gift, label: "Khuyến mãi", href: "/admin/staff/promotion-management", roleIds: [ROLES.ADMIN, ROLES.MANAGER] },
             { icon: Users, label: "Nhân Viên", href: "/admin/staff/staff-management", roleIds: [ROLES.ADMIN, ROLES.MANAGER] },
             { icon: ServerIcon, label: "Dịch vụ", href: "/admin/staff/service-management", roleIds: [ROLES.ADMIN, ROLES.MANAGER] }
@@ -62,6 +59,8 @@ const MENU_GROUPS = [
         roleIds: [ROLES.ADMIN],
         items: [
             { icon: BadgePercent, label: "Hoa Hồng Nhân Viên", href: "/admin/staff/referral-management", roleIds: [ROLES.ADMIN] },
+            { icon: UserCog, label: "Tổng hợp hoa hồng", href: "/admin/statistics/commissions", roleIds: [ROLES.ADMIN] },
+
         ]
     },
     {
@@ -76,33 +75,43 @@ const MENU_GROUPS = [
 export const Sidebar = () => {
     const pathname = usePathname();
     const [currentUser, setCurrentUser] = useState<User | null>(mockUsers[0]);
-    const [clickedGroupIndex, setClickedGroupIndex] = useState<number | null>(null);
 
+    // FIX 1: Khởi tạo state dựa trên pathname ngay lập tức (Lazy initialization)
+    // Để khi F5 hoặc chuyển trang, nó biết ngay nhóm nào cần mở
+    const [clickedGroupIndex, setClickedGroupIndex] = useState<number | null>(() => {
+        const activeIndex = MENU_GROUPS.findIndex(group =>
+            group.items.some(item =>
+                pathname === item.href || pathname.startsWith(`${item.href}/`)
+            )
+        );
+        return activeIndex !== -1 ? activeIndex : null;
+    });
+
+    // FIX 2: useEffect cập nhật khi pathname thay đổi (để đồng bộ khi click link)
     useEffect(() => {
         const activeIndex = MENU_GROUPS.findIndex(group =>
-            group.items.some(item => item.href === pathname)
+            // Sử dụng startsWith để hỗ trợ các trang con (VD: /customers/detail/1)
+            group.items.some(item =>
+                pathname === item.href || pathname.startsWith(`${item.href}/`)
+            )
         );
+
+        // Chỉ cập nhật nếu tìm thấy nhóm phù hợp (để tránh đóng menu khi click linh tinh)
         if (activeIndex !== -1) {
-            const timer = setTimeout(() => {
-                setClickedGroupIndex(activeIndex);
-            }, 0);
-            return () => clearTimeout(timer);
+            setClickedGroupIndex(activeIndex);
         }
     }, [pathname]);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            const storedUser = localStorage.getItem("currentUser");
-            if (storedUser) {
-                try {
-                    const parsedUser = JSON.parse(storedUser);
-                    setCurrentUser(parsedUser);
-                } catch (error) {
-                    console.error("Lỗi đọc dữ liệu user:", error);
-                }
+        const storedUser = localStorage.getItem("currentUser");
+        if (storedUser) {
+            try {
+                const parsedUser = JSON.parse(storedUser);
+                setCurrentUser(parsedUser);
+            } catch (error) {
+                console.error("Lỗi đọc dữ liệu user:", error);
             }
-        }, 0);
-        return () => clearTimeout(timer);
+        }
     }, []);
 
     const handleLogout = () => {
@@ -152,11 +161,7 @@ export const Sidebar = () => {
                                 className={`px-4 mb-2 flex items-center justify-between cursor-pointer group/label hover:bg-[#1e293b] p-2 rounded-lg transition-all ${isOpen ? "bg-[#1e293b]" : ""}`}
                             >
                                 <div className="flex items-center gap-3 opacity-90 group-hover/label:opacity-100">
-                                    {/* 👇 Tăng size icon lên 18 để cân đối với chữ */}
                                     <Sparkles size={18} className="text-white" />
-
-                                    {/* 👇 1. SỬA FONT TIÊU ĐỀ: text-[18px] */}
-                                    {/* Đã bỏ uppercase và tracking để chữ 18px không bị quá rộng */}
                                     <p className={`text-[18px] font-bold text-white`}>
                                         {group.groupLabel}
                                     </p>
@@ -166,14 +171,11 @@ export const Sidebar = () => {
 
                             <div className={`space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-[500px] opacity-100 mb-4" : "max-h-0 opacity-0"}`}>
                                 {visibleItems.map((item) => (
-                                    /* 👇 2. SỬA FONT ITEM CON: Truyen prop className (hoặc style) vào SidebarItem */
                                     <div key={item.href} className="text-[16px]">
                                         <SidebarItem
                                             icon={item.icon}
                                             label={item.label}
                                             href={item.href}
-                                        // ⚠️ Lưu ý: Bạn cần chắc chắn file SidebarItem.tsx nhận props className
-                                        // Nếu SidebarItem không nhận className, hãy bọc nó trong div hoặc sửa file SidebarItem
                                         />
                                     </div>
                                 ))}

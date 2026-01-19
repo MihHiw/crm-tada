@@ -1,9 +1,9 @@
 "use client";
 import { Sidebar } from '@/components/admin/Sidebar';
 import GlobalBackground from '@/components/GlobalBackground';
-// Giả sử hook này trả về data đúng chuẩn Promotion, nếu chưa bạn cần sửa hook hoặc map data ở đây
+// Giả sử hook này trả về data đúng chuẩn Promotion
 import { usePromotions } from '@/hooks/promotions/usePromotionAdmin';
-import { Promotion } from '@/types/types'; // Import Interface chuẩn của bạn
+import { Promotion } from '@/types/types';
 import {
     Calendar,
     CheckCircle2,
@@ -25,8 +25,8 @@ import { useEffect, useMemo, useState } from 'react';
 
 // --- Types UI Mở rộng từ Interface gốc ---
 interface UIPromotion extends Promotion {
-    status: 'active' | 'upcoming' | 'expired' | 'hidden'; // Trạng thái tính toán
-    usageCount: number; // Mock data hiển thị
+    status: 'active' | 'upcoming' | 'expired' | 'hidden';
+    usageCount: number;
 }
 
 type TabType = 'all' | 'active' | 'upcoming' | 'expired';
@@ -72,7 +72,6 @@ const StatusBadge = ({ status }: { status: UIPromotion['status'] }) => {
 };
 
 export default function PromotionManagement() {
-    // Giả sử hook trả về any hoặc Promotion[], ta ép kiểu để an toàn
     const { loading, allPromotions } = usePromotions();
 
     // State quản lý danh sách hiển thị (Local State)
@@ -89,7 +88,6 @@ export default function PromotionManagement() {
     // Đồng bộ dữ liệu từ Hook
     useEffect(() => {
         if (allPromotions && allPromotions.length > 0) {
-            // Ép kiểu data từ hook về Promotion nếu cần thiết
             setLocalPromotions(allPromotions as unknown as Promotion[]);
         }
     }, [allPromotions]);
@@ -141,14 +139,13 @@ export default function PromotionManagement() {
 
     // Handlers
     const handleOpenCreate = () => {
-        // Set default dates
         const now = new Date();
         const nextMonth = new Date();
         nextMonth.setDate(now.getDate() + 30);
 
         setFormData({
             ...initialFormState,
-            start_date: now.toISOString().slice(0, 16), // Format cho input datetime-local
+            start_date: now.toISOString().slice(0, 16),
             end_date: nextMonth.toISOString().slice(0, 16)
         });
         setIsModalOpen(true);
@@ -184,7 +181,6 @@ export default function PromotionManagement() {
                 end_date: new Date(formData.end_date).toISOString(),
                 banner_url: formData.banner_url || "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=800&auto=format&fit=crop&q=60",
                 target_type: formData.target_type,
-                // Các trường optional khác
                 description: '',
                 min_order_value: 0,
                 max_discount_value: 0,
@@ -214,26 +210,30 @@ export default function PromotionManagement() {
                 <Sidebar />
             </div>
 
-            <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 scrollbar-hide">
-                {/* Header */}
-                <header className="bg-transparent border-b border-white/10 px-8 py-5 flex justify-between items-center z-10 backdrop-blur-sm">
-                    <div>
-                        <h1 className="text-2xl font-bold text-white tracking-tight">Chiến dịch khuyến mãi</h1>
-                        <p className="text-xs text-white/60 font-medium">Cấu hình mã giảm giá theo loại hình và thời gian.</p>
+            {/* FIX: Thay đổi cấu trúc main để hỗ trợ căn trái và cuộn nội dung */}
+            <main className="flex-1 h-full overflow-y-auto relative z-10 scrollbar-hide">
+
+                {/* FIX: Container căn trái (mr-auto) và giảm padding (p-6) */}
+                <div className="w-full max-w-[1600px] mr-auto p-6 flex flex-col space-y-8">
+
+                    {/* Header - Đưa vào trong luồng cuộn để đồng bộ với các trang khác */}
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                        <div>
+                            <h1 className="text-3xl font-bold text-white tracking-tight">Chiến dịch khuyến mãi</h1>
+                            <p className="text-xs text-white/60 font-medium mt-1">Cấu hình mã giảm giá theo loại hình và thời gian.</p>
+                        </div>
+
+                        <button
+                            onClick={handleOpenCreate}
+                            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg flex items-center gap-2 transition-all active:scale-95 backdrop-blur-md"
+                        >
+                            <Plus size={18} className="text-emerald-400" />
+                            Tạo khuyến mãi
+                        </button>
                     </div>
 
-                    <button
-                        onClick={handleOpenCreate}
-                        className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6 py-2.5 rounded-2xl font-bold text-sm shadow-lg flex items-center gap-2 transition-all active:scale-95 backdrop-blur-md"
-                    >
-                        <Plus size={18} className="text-emerald-400" />
-                        Tạo khuyến mãi
-                    </button>
-                </header>
-
-                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                     {/* Stats */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-lg flex items-center gap-5">
                             <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shadow-inner">
                                 <CheckCircle2 size={28} />
@@ -299,9 +299,9 @@ export default function PromotionManagement() {
                         </div>
 
                         {/* Table */}
-                        <div className="flex-1 overflow-x-auto">
+                        <div className="flex-1 overflow-x-auto custom-scrollbar">
                             <table className="w-full text-left">
-                                <thead className="bg-[#0f172a]/80 text-white/50 text-[10px] uppercase font-black tracking-[0.15em] border-b border-white/10 backdrop-blur-md">
+                                <thead className="bg-[#0f172a]/80 text-white/50 text-[10px] uppercase font-black tracking-[0.15em] border-b border-white/10 backdrop-blur-md sticky top-0 z-10">
                                     <tr>
                                         <th className="px-8 py-5">Thông tin khuyến mãi</th>
                                         <th className="px-6 py-5 text-center">Mã Code</th>

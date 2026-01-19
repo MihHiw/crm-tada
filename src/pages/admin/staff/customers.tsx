@@ -1,7 +1,6 @@
 "use client";
 
 import { Award, ChevronLeft, ChevronRight, Mail, Phone, Plus, Save, Search, User, X } from 'lucide-react';
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 // Hooks & Components
@@ -14,7 +13,7 @@ import GlobalBackground from '@/components/GlobalBackground';
 import { NewCustomerInput, useCustomerManagement } from '@/hooks/customerManagement/useCustomerManagement';
 
 export default function CustomerManagement() {
-    const router = useRouter();
+    // const router = useRouter(); // FIX: Nếu dùng Next.js 13+ App Router thì nên dùng 'next/navigation', nếu Pages Router thì giữ nguyên
     const { state, setters, actions } = useCustomerManagement();
     const { paginatedCustomers, searchTerm, filterTier, currentPage, totalPages, customers } = state;
 
@@ -30,7 +29,8 @@ export default function CustomerManagement() {
     });
 
     const handleNavigateDetail = (id: string | number) => {
-        router.push(`/admin/customerAdmin/${id}`);
+        // router.push(`/admin/customerAdmin/${id}`);
+        window.location.href = `/admin/customerAdmin/${id}`; // Tạm thời dùng window.location nếu router chưa config
     };
 
     const handleCreateCustomer = (e: React.FormEvent) => {
@@ -51,7 +51,8 @@ export default function CustomerManagement() {
 
             {/* Main Content */}
             <main className="flex-1 h-full overflow-y-auto relative z-10 scrollbar-hide">
-                <div className="w-full max-w-[1600px] mx-auto p-6 md:p-10 flex flex-col h-full space-y-8">
+                {/* FIX: Đổi mx-auto thành mr-auto và giảm padding để kéo nội dung sang trái */}
+                <div className="w-full max-w-[1600px] mr-auto p-6 flex flex-col h-full space-y-8">
 
                     {/* HEADER */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">

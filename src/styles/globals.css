@@ -83,7 +83,7 @@ font-serif {
     /* Thiết lập cho toàn bộ trang web */
     html,
     body {
-        @apply text-[16px] antialiased text-slate-200;
+        @apply text-[14px] antialiased text-slate-200;
         /* Mặc định nội dung 16px */
     }
 
@@ -92,16 +92,16 @@ font-serif {
     h2,
     h3,
     h4 {
-        @apply text-[18px] font-bold text-white tracking-tight;
+        @apply text-[16px] font-bold text-white tracking-tight;
     }
 
     /* Đảm bảo các bảng dữ liệu cũng dùng font 16px */
     table {
-        @apply text-[16px];
+        @apply text-[14px];
     }
 
     /* Nếu bạn muốn tiêu đề sidebar cũng là 18px */
     .sidebar-label {
-        @apply text-[18px];
+        @apply text-[16px];
     }
 }

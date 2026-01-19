@@ -72,7 +72,6 @@ export default function AnalyticsDashboard() {
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => { setIsMounted(true); }, []);
 
-    // FIX: Đã sử dụng hàm này ở phần Legend bên dưới biểu đồ tròn
     const calculateValue = (percent: number) => {
         const total = 1.25; // Tỷ
         const val = (total * percent) / 100;
@@ -87,17 +86,18 @@ export default function AnalyticsDashboard() {
                 <Sidebar />
             </aside>
 
-            <main className="flex-1 overflow-y-auto p-8 custom-scrollbar z-10 relative">
-                <div className="max-w-7xl mx-auto">
+            {/* FIX 1: Giảm padding p-8 xuống p-6 để đỡ khoảng trống bên trái */}
+            <main className="flex-1 overflow-y-auto p-6 custom-scrollbar z-10 relative">
+
+                {/* FIX 2: Đổi mx-auto (căn giữa) thành mr-auto (căn trái) */}
+                <div className="max-w-7xl mr-auto">
+
                     {/* Header */}
                     <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-10 gap-4">
-
                         <div>
                             <h1 className="text-3xl font-bold text-white mb-1 tracking-tight">Tổng quan hiệu suất</h1>
                             <p className="text-white/60 text-sm font-medium">Cập nhật lúc 09:30 AM</p>
                         </div>
-
-
 
                         <div className="flex flex-wrap items-center gap-4">
                             <div className="bg-white/5 backdrop-blur-md p-1.5 rounded-2xl border border-white/10 shadow-xl flex gap-1">
@@ -148,7 +148,7 @@ export default function AnalyticsDashboard() {
                             </div>
                         </div>
 
-                        {/* Pie Chart Section - FIXED: Removed black borders & Type errors */}
+                        {/* Pie Chart Section */}
                         <div className="bg-[#1e293b]/50 backdrop-blur-xl p-8 rounded-[3rem] border border-white/5 shadow-2xl flex flex-col">
                             <div className="flex items-center justify-between mb-10">
                                 <h3 className="text-xl font-black text-white  tracking-tight">Cơ cấu doanh thu</h3>
@@ -167,19 +167,18 @@ export default function AnalyticsDashboard() {
                                                 outerRadius={125}
                                                 paddingAngle={0}
                                                 dataKey="value"
-                                                stroke="none"    /* FIX: BỎ VIỀN ĐEN */
+                                                stroke="none"
                                             >
                                                 {PIE_DATA.map((entry, index) => (
                                                     <Cell
                                                         key={`cell-${index}`}
                                                         fill={entry.color}
-                                                        stroke="none" /* FIX: BỎ VIỀN ĐEN */
+                                                        stroke="none"
                                                     />
                                                 ))}
                                             </Pie>
                                             <Tooltip
                                                 contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(12px)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
-                                                // FIX LỖI TYPE: Kiểm tra undefined và ép kiểu cho formatter
                                                 formatter={(value: number | string | undefined) => {
                                                     const numValue = typeof value === 'string' ? parseFloat(value) : value;
                                                     return [`${numValue ?? 0}%`, 'Tỷ trọng'];
@@ -197,7 +196,6 @@ export default function AnalyticsDashboard() {
                                 </div>
                             </div>
 
-                            {/* Legend - SỬ DỤNG calculateValue TẠI ĐÂY ĐỂ HẾT LỖI ESLINT */}
                             <div className="mt-8 space-y-3 flex-1 overflow-y-auto custom-scrollbar pr-1">
                                 {PIE_DATA.map((item, idx) => (
                                     <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.07] transition-all group">
